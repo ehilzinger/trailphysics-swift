@@ -1,0 +1,1399 @@
+{
+  "about": "Shared test vectors for the foot pace model (docs/foot-pace-model.md in hatchure-web). Master: hatchure-web app/js/__tests__/fixtures/foot-pace.json. A byte-identical copy lives at hatchure-ios HatchureTests/Fixtures/foot-pace.json; change both together. \"check\": \"hand\" vectors were worked out by hand (DIN signpost arithmetic, Minetti polynomial); \"model\" vectors pin the implementation where hand arithmetic would be tedious.",
+  "version": 1,
+  "tolerance_s": 0.01,
+  "sections": [
+    {
+      "name": "DIN flat: 8 km at 4 km/h is 2 h",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 7200,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "DIN signpost: 8 km, +600/-200 m. h = 2 h, v = 2 + 0.4 = 2.4 h, t = 2.4 + 1 = 3.4 h",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 12240,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "DIN steep: 3 km, +900 m. h = 0.75, v = 3, t = 3 + 0.375 = 3:22:30",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 3000,
+        "ascentM": 900,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 12150,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "DIN descent: 6 km, -1000 m. h = 1.5, v = 2, t = 2 + 0.75 = 2:45",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 6000,
+        "ascentM": 0,
+        "descentM": 1000,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 9900,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "DIN hut approach: 5.5 km, +750/-50 m. h = 1.375, v = 2.6, t = 2.6 + 0.6875 = 3:17:15",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 5500,
+        "ascentM": 750,
+        "descentM": 50,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 11835,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "DIN vertical only: 0 m, +300 m is 1 h",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 0,
+        "ascentM": 300,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 3600,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "SAC T2 is walking ground: 3.4 h",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": 2,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 12240,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "SAC 0 (untagged) is walking ground",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": 0,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 12240,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "SAC T3 x1.15: 3.4 h -> 3.91 h",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": 3,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 14076,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "SAC T4 x1.35: 3.4 h -> 4.59 h",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": 4,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 16524,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "SAC T5 x1.6: 3.4 h -> 5.44 h",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": 5,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 19584,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "SAC T6 is T5+: x1.6",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": 6,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 19584,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Hike factor 1.2 is a speed factor: 3.4 h / 1.2 = 2:50 h",
+      "profile": "hiking",
+      "settings": {
+        "hikeFactor": 1.2
+      },
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 10200,
+      "check": "hand"
+    },
+    {
+      "name": "Hike factor 1.2 turns a 3:00 h signpost (12 km flat) into 2:30 h",
+      "profile": "hiking",
+      "settings": {
+        "hikeFactor": 1.2
+      },
+      "section": {
+        "distanceM": 12000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 9000,
+      "check": "hand"
+    },
+    {
+      "name": "Hike factor 0.85 (the slower preset) on T4: 3.4 h x 1.35 / 0.85",
+      "profile": "hiking",
+      "settings": {
+        "hikeFactor": 0.85
+      },
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": 4,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 19440,
+      "check": "hand"
+    },
+    {
+      "name": "Hike factor 0.3 is clamped to 0.5: twice the signpost time",
+      "profile": "hiking",
+      "settings": {
+        "hikeFactor": 0.3
+      },
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 24480,
+      "check": "hand"
+    },
+    {
+      "name": "Hike factor 2.5 is clamped to 2.0: half the signpost time",
+      "profile": "hiking",
+      "settings": {
+        "hikeFactor": 2.5
+      },
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 6120,
+      "check": "hand"
+    },
+    {
+      "name": "Hike factor -1 is not set: 1.0",
+      "profile": "hiking",
+      "settings": {
+        "hikeFactor": -1
+      },
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 12240,
+      "check": "hand"
+    },
+    {
+      "name": "Unreadable numbers are zero: 4 km, ascent -100, descent null is 1 h flat",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 4000,
+        "ascentM": -100,
+        "descentM": null,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 3600,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Road class and surface do not change a hike",
+      "profile": "hiking",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": "ground",
+        "roadClass": "path"
+      },
+      "expected_s": 7200,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Road run, flat 10 km at the 6:00 default",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 10000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 3600,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Trail run, flat 10 km at the 7:00 default",
+      "profile": "trailrun",
+      "section": {
+        "distanceM": 10000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 4200,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Trail run, flat 10 km on a path: x1.08",
+      "profile": "trailrun",
+      "section": {
+        "distanceM": 10000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": "path"
+      },
+      "expected_s": 4536,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Track counts as trail: x1.08",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": "gravel",
+        "roadClass": "track"
+      },
+      "expected_s": 388.8,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Natural surface on a road class counts as trail: x1.08",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": "dirt",
+        "roadClass": "unclassified"
+      },
+      "expected_s": 388.8,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Footway on asphalt is not trail",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": "asphalt",
+        "roadClass": "footway"
+      },
+      "expected_s": 360,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "SAC T2 counts as trail: x1.08",
+      "profile": "trailrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": 2,
+        "surface": null,
+        "roadClass": "path"
+      },
+      "expected_s": 453.6,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "SAC T3+ x1.25 (replaces x1.08)",
+      "profile": "trailrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": 3,
+        "surface": null,
+        "roadClass": "path"
+      },
+      "expected_s": 525,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "User pace 5:00 applies to trail runs too",
+      "profile": "trailrun",
+      "settings": {
+        "runPaceSecPerKm": 300
+      },
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 300,
+      "check": "hand"
+    },
+    {
+      "name": "Run pace 100 s/km is clamped to 150",
+      "profile": "roadrun",
+      "settings": {
+        "runPaceSecPerKm": 100
+      },
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 150,
+      "check": "hand"
+    },
+    {
+      "name": "Run pace 1200 s/km is clamped to 900",
+      "profile": "roadrun",
+      "settings": {
+        "runPaceSecPerKm": 1200
+      },
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 900,
+      "check": "hand"
+    },
+    {
+      "name": "Minetti +10 %: C = 5.968214, factor 1.657837",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 100,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 596.821,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Minetti +25 %: C = 10.7252, factor 2.97922 (not yet power-hiking)",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 250,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 1072.52,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Minetti -1 %: C = 3.409673, factor 0.947131",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 10,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 340.967,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Minetti -5 % would be 0.763: the downhill floor 0.85 holds",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 50,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 306,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Minetti -20 % would be 0.5: the downhill floor 0.85 holds",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 200,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 306,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Minetti -45 %: C = 4.032305, factor 1.120085, above the floor",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 0,
+        "descentM": 450,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 403.231,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Past +45 % the curve continues on its tangent: +60 % factor 7.71471",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 500,
+        "ascentM": 300,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 1388.648,
+      "check": "model",
+      "settings": {}
+    },
+    {
+      "name": "Past -45 % the curve continues on its tangent: -60 %",
+      "profile": "roadrun",
+      "section": {
+        "distanceM": 500,
+        "ascentM": 0,
+        "descentM": 300,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 243.106,
+      "check": "model",
+      "settings": {}
+    },
+    {
+      "name": "Mixed section 8 km, +600/-200: 6 km up then 2 km down at 10 %",
+      "profile": "trailrun",
+      "section": {
+        "distanceM": 8000,
+        "ascentM": 600,
+        "descentM": 200,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 4891.75,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "+30 % on T3: running (1834.5 s) beats the hike (4657.5 s), so it runs",
+      "profile": "trailrun",
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 300,
+        "descentM": 0,
+        "sacScale": 3,
+        "surface": null,
+        "roadClass": "path"
+      },
+      "expected_s": 1834.479,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Power-hike: slow runner (15:00/km) with a fast hike factor (1.5) walks +60 %: DIN 2.125 h / 1.5 beats running (7498.7 s)",
+      "profile": "trailrun",
+      "settings": {
+        "runPaceSecPerKm": 900,
+        "hikeFactor": 1.5
+      },
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 600,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": "path"
+      },
+      "expected_s": 5100,
+      "check": "hand"
+    },
+    {
+      "name": "Power-hike floor: the same runner at +30 % would walk it in 2700 s, but never faster than running at 25 %: 900 x 2.979222 x 1.08",
+      "profile": "trailrun",
+      "settings": {
+        "runPaceSecPerKm": 900,
+        "hikeFactor": 1.5
+      },
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 300,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": "path"
+      },
+      "expected_s": 2895.803,
+      "check": "hand"
+    },
+    {
+      "name": "Power-hike only past 25 %: same runner at +20 % still runs",
+      "profile": "trailrun",
+      "settings": {
+        "runPaceSecPerKm": 900,
+        "hikeFactor": 1.5
+      },
+      "section": {
+        "distanceM": 1000,
+        "ascentM": 200,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": "path"
+      },
+      "expected_s": 2431.806,
+      "check": "model"
+    },
+    {
+      "name": "Running with no distance: the vertical is walked (DIN), 300 m up is 1 h",
+      "profile": "trailrun",
+      "section": {
+        "distanceM": 0,
+        "ascentM": 300,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 3600,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Running with no distance at the hike factor 1.2: 1 h / 1.2",
+      "profile": "roadrun",
+      "settings": {
+        "hikeFactor": 1.2
+      },
+      "section": {
+        "distanceM": 0,
+        "ascentM": 300,
+        "descentM": 0,
+        "sacScale": null,
+        "surface": null,
+        "roadClass": null
+      },
+      "expected_s": 3000,
+      "check": "hand"
+    }
+  ],
+  "routes": [
+    {
+      "name": "Noise under the 5 m dead band is flat: 2 km wobbling 2 m is 30 min",
+      "profile": "hiking",
+      "distances_m": [
+        0,
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600,
+        1700,
+        1800,
+        1900,
+        2000
+      ],
+      "elevations": [
+        500,
+        502,
+        500,
+        502,
+        500,
+        502,
+        500,
+        502,
+        500,
+        502,
+        500,
+        502,
+        500,
+        502,
+        500,
+        502,
+        500,
+        502,
+        500,
+        502,
+        500
+      ],
+      "ways": [],
+      "total_m": 2000,
+      "expected_s": 1800,
+      "expected_sections": 10,
+      "check": "hand",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    },
+    {
+      "name": "Uniform 10 % climb over 3 km: the dead band costs its first 2.5 m, +297.5 m. h = 0.75, v = 0.991667, t = 1.366667 h",
+      "profile": "hiking",
+      "distances_m": [
+        0,
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600,
+        1700,
+        1800,
+        1900,
+        2000,
+        2100,
+        2200,
+        2300,
+        2400,
+        2500,
+        2600,
+        2700,
+        2800,
+        2900,
+        3000
+      ],
+      "elevations": [
+        1000,
+        1010,
+        1020,
+        1030,
+        1040,
+        1050,
+        1060,
+        1070,
+        1080,
+        1090,
+        1100,
+        1110,
+        1120,
+        1130,
+        1140,
+        1150,
+        1160,
+        1170,
+        1180,
+        1190,
+        1200,
+        1210,
+        1220,
+        1230,
+        1240,
+        1250,
+        1260,
+        1270,
+        1280,
+        1290,
+        1300
+      ],
+      "ways": [],
+      "total_m": 3000,
+      "expected_s": 4920,
+      "expected_sections": 15,
+      "check": "hand",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    },
+    {
+      "name": "Up and over: 2 km at +10 %, 2 km at -10 %, cut into 200 m windows (signpost for the whole 4 km would be 5640 s)",
+      "profile": "hiking",
+      "distances_m": [
+        0,
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600,
+        1700,
+        1800,
+        1900,
+        2000,
+        2100,
+        2200,
+        2300,
+        2400,
+        2500,
+        2600,
+        2700,
+        2800,
+        2900,
+        3000,
+        3100,
+        3200,
+        3300,
+        3400,
+        3500,
+        3600,
+        3700,
+        3800,
+        3900,
+        4000
+      ],
+      "elevations": [
+        1000,
+        1010,
+        1020,
+        1030,
+        1040,
+        1050,
+        1060,
+        1070,
+        1080,
+        1090,
+        1100,
+        1110,
+        1120,
+        1130,
+        1140,
+        1150,
+        1160,
+        1170,
+        1180,
+        1190,
+        1200,
+        1190,
+        1180,
+        1170,
+        1160,
+        1150,
+        1140,
+        1130,
+        1120,
+        1110,
+        1100,
+        1090,
+        1080,
+        1070,
+        1060,
+        1050,
+        1040,
+        1030,
+        1020,
+        1010,
+        1000
+      ],
+      "ways": [],
+      "total_m": 4000,
+      "expected_s": 5772,
+      "expected_sections": 20,
+      "check": "hand",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    },
+    {
+      "name": "The same up and over, trail run at the default pace",
+      "profile": "trailrun",
+      "distances_m": [
+        0,
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1100,
+        1200,
+        1300,
+        1400,
+        1500,
+        1600,
+        1700,
+        1800,
+        1900,
+        2000,
+        2100,
+        2200,
+        2300,
+        2400,
+        2500,
+        2600,
+        2700,
+        2800,
+        2900,
+        3000,
+        3100,
+        3200,
+        3300,
+        3400,
+        3500,
+        3600,
+        3700,
+        3800,
+        3900,
+        4000
+      ],
+      "elevations": [
+        1000,
+        1010,
+        1020,
+        1030,
+        1040,
+        1050,
+        1060,
+        1070,
+        1080,
+        1090,
+        1100,
+        1110,
+        1120,
+        1130,
+        1140,
+        1150,
+        1160,
+        1170,
+        1180,
+        1190,
+        1200,
+        1190,
+        1180,
+        1170,
+        1160,
+        1150,
+        1140,
+        1130,
+        1120,
+        1110,
+        1100,
+        1090,
+        1080,
+        1070,
+        1060,
+        1050,
+        1040,
+        1030,
+        1020,
+        1010,
+        1000
+      ],
+      "ways": [],
+      "total_m": 4000,
+      "expected_s": 2098.709,
+      "expected_sections": 20,
+      "check": "model",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    },
+    {
+      "name": "Flat 2 km, half on T4: 900 x 1.35 + 900",
+      "profile": "hiking",
+      "distances_m": [
+        0,
+        250,
+        500,
+        750,
+        1000,
+        1250,
+        1500,
+        1750,
+        2000
+      ],
+      "elevations": [
+        700,
+        700,
+        700,
+        700,
+        700,
+        700,
+        700,
+        700,
+        700
+      ],
+      "ways": [
+        {
+          "fromM": 0,
+          "toM": 1000,
+          "sacScale": 4,
+          "surface": "rock",
+          "roadClass": "path"
+        },
+        {
+          "fromM": 1000,
+          "toM": 2000,
+          "sacScale": 0,
+          "surface": "asphalt",
+          "roadClass": "unclassified"
+        }
+      ],
+      "total_m": 2000,
+      "expected_s": 2115,
+      "expected_sections": 8,
+      "check": "hand",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    },
+    {
+      "name": "Flat 2 km, half on T4, trail run: 420 x 1.25 + 420",
+      "profile": "trailrun",
+      "distances_m": [
+        0,
+        250,
+        500,
+        750,
+        1000,
+        1250,
+        1500,
+        1750,
+        2000
+      ],
+      "elevations": [
+        700,
+        700,
+        700,
+        700,
+        700,
+        700,
+        700,
+        700,
+        700
+      ],
+      "ways": [
+        {
+          "fromM": 0,
+          "toM": 1000,
+          "sacScale": 4,
+          "surface": "rock",
+          "roadClass": "path"
+        },
+        {
+          "fromM": 1000,
+          "toM": 2000,
+          "sacScale": 0,
+          "surface": "asphalt",
+          "roadClass": "unclassified"
+        }
+      ],
+      "total_m": 2000,
+      "expected_s": 945,
+      "expected_sections": 8,
+      "check": "hand",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    },
+    {
+      "name": "A way change inside a window shares its climb by distance",
+      "profile": "hiking",
+      "distances_m": [
+        0,
+        300,
+        600,
+        900,
+        1200
+      ],
+      "elevations": [
+        500,
+        530,
+        560,
+        590,
+        620
+      ],
+      "ways": [
+        {
+          "fromM": 0,
+          "toM": 450,
+          "sacScale": 3,
+          "surface": null,
+          "roadClass": "path"
+        },
+        {
+          "fromM": 450,
+          "toM": 1200,
+          "sacScale": null,
+          "surface": null,
+          "roadClass": "track"
+        }
+      ],
+      "total_m": 1200,
+      "expected_s": 2056.875,
+      "expected_sections": 5,
+      "check": "hand",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    },
+    {
+      "name": "Gaps between ways are unknown ground",
+      "profile": "trailrun",
+      "distances_m": [
+        0,
+        300,
+        600,
+        900,
+        1200
+      ],
+      "elevations": [
+        500,
+        500,
+        500,
+        500,
+        500
+      ],
+      "total_m": 1200,
+      "ways": [
+        {
+          "fromM": 0,
+          "toM": 300,
+          "sacScale": 3,
+          "surface": null,
+          "roadClass": "path"
+        }
+      ],
+      "expected_s": 535.5,
+      "expected_sections": 4,
+      "check": "hand",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    },
+    {
+      "name": "No profile: one window with the route ascent, descent defaulting to it. 10 km +500/-500: h = 2.5, v = 2.666667, t = 3.916667 h",
+      "profile": "hiking",
+      "distances_m": null,
+      "elevations": null,
+      "ways": [],
+      "total_m": 10000,
+      "ascent_m": 500,
+      "descent_m": null,
+      "expected_s": 14100,
+      "expected_sections": 1,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "No profile, descent given: 10 km +500/-100",
+      "profile": "hiking",
+      "distances_m": null,
+      "elevations": null,
+      "ways": [],
+      "total_m": 10000,
+      "ascent_m": 500,
+      "descent_m": 100,
+      "expected_s": 12360,
+      "expected_sections": 1,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "No profile and no ascent: flat",
+      "profile": "hiking",
+      "distances_m": null,
+      "elevations": null,
+      "ways": [],
+      "total_m": 10000,
+      "ascent_m": null,
+      "descent_m": null,
+      "expected_s": 9000,
+      "expected_sections": 1,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "One usable sample is no profile: the ascent fallback",
+      "profile": "hiking",
+      "distances_m": [
+        0,
+        500,
+        1000
+      ],
+      "elevations": [
+        null,
+        800,
+        null
+      ],
+      "ways": [],
+      "total_m": 4000,
+      "ascent_m": 300,
+      "descent_m": 0,
+      "expected_s": 5400,
+      "expected_sections": 1,
+      "check": "hand",
+      "settings": {}
+    },
+    {
+      "name": "Missing heights are interpolated across, missing ends are flat",
+      "profile": "hiking",
+      "distances_m": [
+        0,
+        200,
+        400,
+        600,
+        800,
+        1000,
+        1200
+      ],
+      "elevations": [
+        null,
+        100,
+        null,
+        null,
+        160,
+        160,
+        null
+      ],
+      "ways": [],
+      "total_m": 1200,
+      "expected_s": 1500,
+      "expected_sections": 4,
+      "check": "hand",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    },
+    {
+      "name": "Zero-length route has no sections",
+      "profile": "hiking",
+      "distances_m": [
+        0,
+        0
+      ],
+      "elevations": [
+        100,
+        120
+      ],
+      "ways": [],
+      "total_m": 0,
+      "expected_sections": 0,
+      "expected_s": 0,
+      "check": "hand",
+      "settings": {},
+      "ascent_m": null,
+      "descent_m": null
+    }
+  ],
+  "pace": [
+    {
+      "sec_per_km": 360,
+      "units": "metric",
+      "expected": "6:00 /km"
+    },
+    {
+      "sec_per_km": 360,
+      "units": "imperial",
+      "expected": "9:39 /mi"
+    },
+    {
+      "sec_per_km": 420,
+      "units": "metric",
+      "expected": "7:00 /km"
+    },
+    {
+      "sec_per_km": 300,
+      "units": "imperial",
+      "expected": "8:03 /mi"
+    },
+    {
+      "sec_per_km": 359.6,
+      "units": "metric",
+      "expected": "6:00 /km"
+    },
+    {
+      "sec_per_km": 599.5,
+      "units": "metric",
+      "expected": "10:00 /km"
+    },
+    {
+      "sec_per_km": 45,
+      "units": "metric",
+      "expected": "0:45 /km"
+    },
+    {
+      "sec_per_km": 3725,
+      "units": "metric",
+      "expected": "62:05 /km"
+    },
+    {
+      "sec_per_km": 0,
+      "units": "metric",
+      "expected": null
+    },
+    {
+      "sec_per_km": -300,
+      "units": "metric",
+      "expected": null
+    }
+  ]
+}
