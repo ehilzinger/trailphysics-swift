@@ -82,6 +82,12 @@ public struct BoundingBox: Sendable, Hashable, Codable {
             && other.minLng >= minLng && other.maxLng <= maxLng
     }
 
+    /// Whether the two boxes share any ground, edges included.
+    func intersects(_ other: BoundingBox) -> Bool {
+        other.minLat <= maxLat && other.maxLat >= minLat
+            && other.minLng <= maxLng && other.maxLng >= minLng
+    }
+
     /// The Web Mercator zoom level this span corresponds to, matching what
     /// Leaflet would report for the same view.
     ///
