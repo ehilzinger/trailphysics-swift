@@ -1,8 +1,13 @@
 # TrailPhysics
 
+[![tests](https://github.com/ehilzinger/trailphysics-swift/actions/workflows/tests.yml/badge.svg)](https://github.com/ehilzinger/trailphysics-swift/actions/workflows/tests.yml)
+
 Route geometry and pace physics for cycling, hiking and running, in Swift.
 It powers the route planning, arrival times and live ride tracking in
 [Hatchure](https://hatchure.app) on iPhone and Apple Watch.
+
+**[Try the models in the browser →](https://ehilzinger.github.io/trailphysics-js/)**
+(the JavaScript port, which gives the same numbers).
 
 - **Rider physics.** Speed comes from power rather than a flat table: air
   drag (with air thinning by altitude), rolling resistance, gravity and
