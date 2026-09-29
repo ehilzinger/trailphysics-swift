@@ -1,5 +1,5 @@
 {
-  "about": "Shared test vectors for the foot pace model (docs/foot-pace-model.md in hatchure-web). Master: hatchure-web app/js/__tests__/fixtures/foot-pace.json. A byte-identical copy lives at hatchure-ios HatchureTests/Fixtures/foot-pace.json; change both together. \"check\": \"hand\" vectors were worked out by hand (DIN signpost arithmetic, Minetti polynomial); \"model\" vectors pin the implementation where hand arithmetic would be tedious.",
+  "about": "Shared test vectors for the foot pace model. The JavaScript package (trailphysics on npm) and the Swift package (trailphysics-swift) both read every vector, so the two cannot drift apart. Master: test/fixtures/foot-pace.json in the JavaScript package, written by test/build-foot-pace-fixtures.mjs; the Swift package holds a byte-identical copy. \"check\": \"hand\" vectors were worked out by hand (DIN signpost arithmetic, Minetti polynomial); \"model\" vectors pin the implementation where hand arithmetic would be tedious.",
   "version": 1,
   "tolerance_s": 0.01,
   "sections": [

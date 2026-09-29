@@ -85,9 +85,12 @@ never change. Display names and routing-engine ids are left to the host app.
 swift test
 ```
 
-The foot-pace vectors in `Tests/TrailPhysicsTests/Fixtures/foot-pace.json`
-are shared with Hatchure's JavaScript implementation, so the two stay in
-agreement to the second.
+There is a JavaScript port of the same models,
+[trailphysics on npm](https://github.com/ehilzinger/trailphysics-js). The
+test vectors in `Tests/TrailPhysicsTests/Fixtures/` (foot pace, rider
+physics, elevation) are byte-identical copies of the files that port
+writes, and both test suites read every vector, so the two agree to within
+a millionth on every figure they share.
 
 ## Licence
 

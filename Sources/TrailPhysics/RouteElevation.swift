@@ -302,6 +302,10 @@ public enum RouteElevation {
     ) -> Double? {
         guard let elevations, let cumulative = anchorDistances(latlngs: latlngs, elevations: elevations)
         else { return nil }
+        // A route with no window long enough to measure reports nothing
+        // rather than 0 %, which would claim it had been measured and found
+        // flat.
+        if let total = cumulative.last, total < inclineWindowM { return nil }
         // Too coarse to measure a climb: see `maxInclineSpacingM`.
         if let total = cumulative.last, elevations.count > 1,
            total / Double(elevations.count - 1) > maxInclineSpacingM {
@@ -323,7 +327,7 @@ public enum RouteElevation {
             steepest = max(steepest, rise / run * 100)
         }
         // A flat route with data is 0 %, which is an answer; nil is reserved
-        // for "no elevations".
+        // for "nothing could be measured".
         return steepest
     }
 

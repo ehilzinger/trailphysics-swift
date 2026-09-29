@@ -39,8 +39,9 @@ struct RouteElevationTests {
         #expect(pct != nil)
         #expect(abs((pct ?? 0) - 10) < 1.5)
 
-        // One vertex 40 m above its neighbours: 80 % point to point, but the
-        // 100 m window sees at most 40 m over 100 m.
+        // One vertex 40 m above its neighbours: 80 % point to point. The
+        // 200 m window alone would still see 20 %; the median of three takes
+        // the outlier out before the window is read.
         var spiked = Array(repeating: 100.0, count: 21)
         spiked[10] = 140
         let spikePct = RouteElevation.maxInclinePct(latlngs: latlngs, elevations: spiked) ?? 0
