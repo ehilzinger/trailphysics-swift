@@ -207,6 +207,41 @@ struct RouteElevationTests {
         #expect(abs((after?.km ?? -1) - total) < 0.01)
     }
 
+    /// The overload a scrub uses, against distances the caller already
+    /// holds, answers exactly as the one that walks the line — on a full
+    /// profile and on a stored, thinned one.
+    @Test("A scrub against held anchor distances matches the one that walks the line")
+    func selectionWithHeldAnchors() throws {
+        let latlngs = line(301)
+        let full = (0..<301).map { 500 + 40 * sin(Double($0) / 9) + Double($0 % 5) }
+        let thinned = RouteElevation.sample(full, max: 37)
+        let cumulative = RouteGeometry.cumulativeDistances(latlngs)
+        let totalKm = (cumulative.last ?? 0) / 1000
+        for elevations in [full, thinned] {
+            let anchors = try #require(
+                RouteElevation.anchorDistances(cumulative: cumulative, elevationCount: elevations.count)
+            )
+            #expect(anchors == RouteElevation.anchorDistances(latlngs: latlngs, elevations: elevations))
+            for step in -2...102 {
+                let km = totalKm * Double(step) / 100
+                let walked = RouteElevation.selection(at: km, latlngs: latlngs, elevations: elevations)
+                let held = RouteElevation.selection(at: km, anchorDistances: anchors, elevations: elevations)
+                #expect(walked != nil && walked == held)
+            }
+            for anchor in anchors {
+                #expect(
+                    RouteElevation.selection(at: anchor / 1000, latlngs: latlngs, elevations: elevations)
+                        == RouteElevation.selection(at: anchor / 1000, anchorDistances: anchors, elevations: elevations)
+                )
+            }
+        }
+        // Counts that do not pair up, or too few, give nothing.
+        #expect(RouteElevation.selection(at: 1, anchorDistances: [0, 10], elevations: [1, 2, 3]) == nil)
+        #expect(RouteElevation.selection(at: 1, anchorDistances: [0], elevations: [1]) == nil)
+        #expect(RouteElevation.anchorDistances(cumulative: [0, 10], elevationCount: 3) == nil)
+        #expect(RouteElevation.anchorDistances(cumulative: [0, 10], elevationCount: 1) == nil)
+    }
+
     @Test("Missing or unplaceable elevations give no selection")
     func selectionMissing() {
         #expect(RouteElevation.selection(at: 1, latlngs: line(5), elevations: nil) == nil)

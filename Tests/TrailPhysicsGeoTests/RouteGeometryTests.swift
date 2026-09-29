@@ -187,6 +187,42 @@ struct RouteGeometryTests {
         #expect(RouteGeometry.point(on: line, atFraction: 2)?.longitude == 11.1)
     }
 
+    /// The search for the vertex a distance falls on is a binary search;
+    /// it has to land exactly where a walk from the start would, including
+    /// on repeated vertices (a zero-length segment) and exactly on a vertex.
+    @Test("A point by distance lands where a walk from the start would")
+    func pointMatchesLinearWalk() {
+        // Uneven spacing, with a duplicated vertex in the middle.
+        var line = (0..<40).map { c(48 + Double($0 * $0) * 0.0001, 11 + Double($0 % 7) * 0.0003) }
+        line.insert(line[20], at: 20)
+        let cumulative = RouteGeometry.cumulativeDistances(line)
+        let total = cumulative.last!
+
+        func walked(_ metres: Double) -> CLLocationCoordinate2D? {
+            if metres <= 0 { return line.first }
+            if metres >= total { return line.last }
+            for index in 1..<cumulative.count where cumulative[index] >= metres {
+                let segment = cumulative[index] - cumulative[index - 1]
+                let t = segment > 0 ? (metres - cumulative[index - 1]) / segment : 0
+                let a = line[index - 1], b = line[index]
+                return CLLocationCoordinate2D(
+                    latitude: a.latitude + (b.latitude - a.latitude) * t,
+                    longitude: a.longitude + (b.longitude - a.longitude) * t
+                )
+            }
+            return line.last
+        }
+
+        let asked = (0...400).map { total * Double($0) / 400 } + cumulative + [-5, total + 5]
+        for metres in asked {
+            let found = RouteGeometry.point(on: line, cumulative: cumulative, atMetres: metres)
+            let expected = walked(metres)
+            #expect(found?.latitude == expected?.latitude && found?.longitude == expected?.longitude)
+        }
+        // One vertex: nothing to search.
+        #expect(RouteGeometry.point(on: [c(48, 11)], cumulative: [0], atMetres: 3)?.latitude == 48)
+    }
+
     /// The reverse of `point(on:atFraction:)`: where along the line a
     /// coordinate sits. Projection onto SEGMENTS is the point of the
     /// function — a straight has no interior vertices, so nearest-vertex

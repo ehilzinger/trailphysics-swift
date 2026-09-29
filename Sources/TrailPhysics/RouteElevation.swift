@@ -133,11 +133,25 @@ public enum RouteElevation {
         guard let elevations, elevations.count > 1, latlngs.count > 1,
               elevations.count <= latlngs.count
         else { return nil }
-        let cumulative = RouteGeometry.cumulativeDistances(latlngs)
-        if elevations.count == latlngs.count { return cumulative }
-        let stride = Double(latlngs.count - 1) / Double(elevations.count - 1)
-        return (0..<elevations.count).map {
-            cumulative[min(latlngs.count - 1, Int((Double($0) * stride).rounded()))]
+        return anchorDistances(
+            cumulative: RouteGeometry.cumulativeDistances(latlngs), elevationCount: elevations.count
+        )
+    }
+
+    /// `anchorDistances(latlngs:elevations:)` for a caller that already
+    /// holds the line's cumulative distances (`RouteGeometry
+    /// .cumulativeDistances`), so the line is not walked again.
+    ///
+    /// `cumulative` has one entry per vertex. Nil under the same rules:
+    /// fewer than two elevations or vertices, or more elevations than
+    /// vertices.
+    public static func anchorDistances(cumulative: [Double], elevationCount: Int) -> [Double]? {
+        let vertexCount = cumulative.count
+        guard elevationCount > 1, vertexCount > 1, elevationCount <= vertexCount else { return nil }
+        if elevationCount == vertexCount { return cumulative }
+        let stride = Double(vertexCount - 1) / Double(elevationCount - 1)
+        return (0..<elevationCount).map {
+            cumulative[min(vertexCount - 1, Int((Double($0) * stride).rounded()))]
         }
     }
 
@@ -442,18 +456,38 @@ public enum RouteElevation {
     public static func selection(
         at km: Double, latlngs: [CLLocationCoordinate2D], elevations: [Double]?
     ) -> Selection? {
-        guard let elevations, let cumulative = anchorDistances(latlngs: latlngs, elevations: elevations),
+        guard let elevations, let cumulative = anchorDistances(latlngs: latlngs, elevations: elevations)
+        else { return nil }
+        return selection(at: km, anchorDistances: cumulative, elevations: elevations)
+    }
+
+    /// `selection(at:latlngs:elevations:)` against anchor distances the
+    /// caller already holds (`anchorDistances`), for a caller asking many
+    /// times over the same line — a scrub asks once per drag sample, and
+    /// walking a long route's whole line each time is what made the
+    /// callout lag the finger.
+    ///
+    /// `anchorDistances` has one entry per elevation. Nil when the two
+    /// counts differ, there are fewer than two, or the line has no length.
+    public static func selection(
+        at km: Double, anchorDistances cumulative: [Double], elevations: [Double]
+    ) -> Selection? {
+        guard cumulative.count == elevations.count, cumulative.count > 1,
               let total = cumulative.last, total > 0
         else { return nil }
 
         let target = min(total, max(0, km * 1000))
 
-        // The anchor pair bracketing `target` — the same walk `profile`
-        // does per sample, here for one arbitrary point.
-        var index = 0
-        while index < cumulative.count - 2, cumulative[index + 1] < target {
-            index += 1
+        // The anchor pair bracketing `target`: the first anchor at or past
+        // it, and the one before. A binary search, since the distances
+        // only ever grow; the last pair when nothing is past it.
+        var low = 1
+        var high = cumulative.count - 1
+        while low < high {
+            let middle = (low + high) / 2
+            if cumulative[middle] >= target { high = middle } else { low = middle + 1 }
         }
+        let index = low - 1
         let span = cumulative[index + 1] - cumulative[index]
         let t = span > 0 ? min(1, max(0, (target - cumulative[index]) / span)) : 0
         let elevationM = elevations[index] + (elevations[index + 1] - elevations[index]) * t

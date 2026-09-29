@@ -209,16 +209,25 @@ public enum RouteGeometry {
         if metres <= 0 { return first }
         if metres >= total { return last }
 
-        for index in 1..<cumulative.count where cumulative[index] >= metres {
-            let segment = cumulative[index] - cumulative[index - 1]
-            let t = segment > 0 ? (metres - cumulative[index - 1]) / segment : 0
-            let a = line[index - 1], b = line[index]
-            return CLLocationCoordinate2D(
-                latitude: a.latitude + (b.latitude - a.latitude) * t,
-                longitude: a.longitude + (b.longitude - a.longitude) * t
-            )
+        // The first vertex at or past `metres`, by binary search: the
+        // distances only ever grow, and a scrub or a day slice asks this of
+        // lines tens of thousands of vertices long.
+        guard cumulative.count > 1 else { return last }
+        var low = 1
+        var high = cumulative.count
+        while low < high {
+            let middle = (low + high) / 2
+            if cumulative[middle] >= metres { high = middle } else { low = middle + 1 }
         }
-        return last
+        guard low < cumulative.count else { return last }
+        let index = low
+        let segment = cumulative[index] - cumulative[index - 1]
+        let t = segment > 0 ? (metres - cumulative[index - 1]) / segment : 0
+        let a = line[index - 1], b = line[index]
+        return CLLocationCoordinate2D(
+            latitude: a.latitude + (b.latitude - a.latitude) * t,
+            longitude: a.longitude + (b.longitude - a.longitude) * t
+        )
     }
 
     /// Where a 0..1 fraction along the route falls.
