@@ -24,6 +24,20 @@ It powers the route planning, arrival times and live ride tracking in
 Pure value types and static functions: no UI, no networking, no global
 state. It needs only Foundation and CoreLocation.
 
+## What it computes
+
+![Speed against gradient for a light rider at 260 W and a loaded tourer at 180 W](https://raw.githubusercontent.com/ehilzinger/trailphysics-swift/main/images/speed-from-power.png)
+
+Speed for two riders on the same road, gradient by gradient. Below −2% the
+model has the rider stop pedalling and freewheel, which is the step in both
+curves, and descents are capped at 65 km/h.
+
+![Minutes per kilometre against gradient for hiking and trail running](https://raw.githubusercontent.com/ehilzinger/trailphysics-swift/main/images/pace-on-foot.png)
+
+Minutes per kilometre on foot: hiking by the DIN 33466 signpost rule,
+trail running by Minetti's cost of running on a slope, never faster downhill
+than 85% of the flat pace.
+
 ## Libraries
 
 | Product | What it holds |
@@ -84,6 +98,8 @@ never change. Display names and routing-engine ids are left to the host app.
 ```bash
 swift test
 ```
+
+![How the shared test vectors reach both test suites](https://raw.githubusercontent.com/ehilzinger/trailphysics-swift/main/images/shared-vectors.png)
 
 There is a JavaScript port of the same models,
 [trailphysics on npm](https://github.com/ehilzinger/trailphysics-js). The
