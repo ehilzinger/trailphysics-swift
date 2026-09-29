@@ -70,7 +70,7 @@ struct RouteLineDecimationTests {
 
     @Test("A framed long route thins to a small fraction of its vertices")
     func longRouteThinsHard() {
-        // 14 000 points is roughly the live router's answer for Munich to
+        // 14 000 points is roughly BRouter's answer for Munich to
         // Milan; ~1 100 m per screen point is that route framed on a phone.
         let full = Self.line(count: 14_000)
         let tolerance = RouteLineDecimation.toleranceM(

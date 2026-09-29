@@ -238,7 +238,7 @@ struct RiderDetailedSpeedTests {
 
     @Test("The two tiers stay distinguishable on a lumpy route")
     func tiersDifferOnLumpyRoute() {
-        // What the Overview tab's result line is built on: it states the
+        // What a display comparing the tiers is built on: it states the
         // detailed figure AS A COMPARISON against the quick one, so the two
         // have to be separately obtainable and actually differ where the
         // ascent is unevenly distributed. The quick tier sees only total
@@ -246,8 +246,9 @@ struct RiderDetailedSpeedTests {
         // tier walks the profile and is the slower, truer figure.
         //
         // If a refactor ever makes the quick tier defer to a cached
-        // detailed one, this is what catches it — the panel would silently
-        // start reporting "the same as the quick estimate" on every route.
+        // detailed one, this is what catches it — such a display would
+        // silently start reporting "the same as the quick estimate" on
+        // every route.
         let rider = RiderPhysics.Rider(riderKg: 75, bikeKg: 18, watts: 150)
         let latlngs = line(5, stepDegrees: 0.01)
         // All the climbing in one wall, then flat: same total ascent as an
@@ -266,7 +267,7 @@ struct RiderDetailedSpeedTests {
             return
         }
 
-        // Both real speeds, and far enough apart that the result line reports a
+        // Both real speeds, and far enough apart that a comparison reports a
         // real difference rather than falling through to "the same".
         #expect(quick.isFinite && quick > 0)
         #expect(detailed.isFinite && detailed > 0)

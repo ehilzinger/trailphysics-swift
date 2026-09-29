@@ -2,25 +2,24 @@ import CoreLocation
 import Foundation
 
 /// How fast a given rider covers a given route, from physics rather than a
-/// flat table. Port of `rider-physics.js`.
+/// flat table. Port of `rider-physics.js` in Hatchure's web implementation.
 ///
-/// Every arrival time in the app comes from one scalar —
-/// `RouteETA.speedKmh` — and until now that scalar knew nothing about the
-/// rider. A loaded tourer at 180 W and a light rider at 260 W got identical
-/// times up the same alpine pass, which is wrong by hours.
+/// An arrival time worked out from one flat average speed knows nothing
+/// about the rider. A loaded tourer at 180 W and a light rider at 260 W get
+/// identical times up the same alpine pass, which is wrong by hours.
 ///
 /// This answers the same question from the four forces a bicycle actually
-/// works against. Deliberately pure: no repository, no `RoutePlanModel`, no
-/// UI — arithmetic over plain numbers and arrays, checkable by hand and
+/// works against. Deliberately pure: no storage, no app state, no UI —
+/// arithmetic over plain numbers and arrays, checkable by hand and
 /// testable without a route attached.
 ///
-/// Two entry points, because the app needs the answer at two very different
-/// costs:
+/// Two entry points, because a caller typically needs the answer at two very
+/// different costs:
 ///
 ///   `estimateSpeedKmh` — one solve at the route's mean gradient. Cheap
 ///                         enough for every row of a saved-route list.
 ///   `detailedSpeedKmh` — one solve per segment of the elevation profile,
-///                         summing times. On-demand, active route only.
+///                         summing times. On demand, one route at a time.
 ///
 /// The detailed figure is always slower than the approximation on rolling
 /// terrain, and that gap is the reason it exists: climbing at 6 km/h costs
@@ -54,7 +53,7 @@ public enum RiderPhysics {
     public static let bikeTypeCdA: [String: Double] = [
         "road": 0.32,     // hands on the hoods, the position most people actually ride
         "gravel": 0.36,   // flared bars, a slightly more upright back
-        "trekking": 0.42, // upright, bar bag, the app's default profile
+        "trekking": 0.42, // upright, bar bag, the default profile here
         "mtb": 0.46       // wide bars, most upright of the four
     ]
     public static let defaultBikeType = "trekking"
@@ -81,8 +80,8 @@ public enum RiderPhysics {
     /// These bound the *inputs*, not the answer. A profile outside them is
     /// rejected whole rather than clamped: a 5000 W entry is a typo or a
     /// unit mix-up, and quietly treating it as 500 would produce a
-    /// confident, wrong arrival time. Must mirror `rider_profiles`' CHECK
-    /// constraints exactly (migration 056).
+    /// confident, wrong arrival time. This is the accepted range; anything
+    /// that stores rider profiles should enforce exactly the same bounds.
     public static let minRiderKg: Double = 30
     public static let maxRiderKg: Double = 200
     public static let minBikeKg: Double = 3
@@ -117,8 +116,8 @@ public enum RiderPhysics {
 
     // MARK: - Rider
 
-    /// The rider's own figures. Mirrors `rider_profiles` and the shape
-    /// `normalize` expects, before validation.
+    /// The rider's own figures, in the shape `normalize` expects, before
+    /// validation.
     public struct Rider: Sendable, Codable, Equatable {
         public var riderKg: Double
         public var bikeKg: Double?
@@ -129,9 +128,8 @@ public enum RiderPhysics {
         public var fatigue: Bool
         /// An explicit, measured drag area. Honoured when present but never
         /// asked for — exists so a rider who has actually been measured
-        /// isn't overridden by a table. Never persisted (see
-        /// `RiderProfileRepository`): storing it would let a stale value
-        /// outlive a bike-type change.
+        /// isn't overridden by a table. Not meant to be persisted: storing
+        /// it would let a stale value outlive a bike-type change.
         public var cda: Double?
 
         public init(
@@ -205,8 +203,8 @@ public enum RiderPhysics {
     ///
     /// Returning nil rather than a defaulted profile is deliberate: "no
     /// rider profile" has to stay distinguishable from "a rider profile
-    /// made of guesses", because the first means fall back to the existing
-    /// speed ladder and the second means show a confident but wrong figure.
+    /// made of guesses", because the first means fall back to a generic
+    /// speed and the second means show a confident but wrong figure.
     /// Only the two fields nobody can substitute for — weight and power —
     /// are required; everything else has a defensible default.
     public static func normalize(_ rider: Rider?) -> NormalizedParams? {
@@ -375,12 +373,12 @@ public enum RiderPhysics {
     /// Average speed in km/h from distance and total ascent alone, or nil
     /// when there isn't enough to work with.
     ///
-    /// Every saved route carries both (`ascentM`, and the geometry), so this
-    /// can run for every row of a list without touching the elevation
-    /// array. What it cannot see is the *distribution* of that ascent:
-    /// 1000 m spread evenly and 1000 m in one wall give the same answer
-    /// here, and the second is genuinely slower — `detailedSpeedKmh` is the
-    /// fix.
+    /// A saved route usually carries both (its total ascent, and the
+    /// geometry), so this can run for every row of a list without touching
+    /// the elevation array. What it cannot see is the *distribution* of that
+    /// ascent: 1000 m spread evenly and 1000 m in one wall give the same
+    /// answer here, and the second is genuinely slower — `detailedSpeedKmh`
+    /// is the fix.
     ///
     /// The mean gradient is halved on the way in. A route with 1000 m of
     /// ascent over 100 km does not climb at 1% throughout — it climbs at
@@ -437,7 +435,8 @@ public enum RiderPhysics {
 
         // The elevation array is walked, not the geometry, and the two are
         // different lengths whenever the route came back from storage
-        // (the profile is thinned on save). Each elevation index maps to
+        // (a stored profile is thinned; see
+        // `RouteElevation.profileForStorage`). Each elevation index maps to
         // the vertex it was sampled from by inverting the storage stride.
         //
         // Deliberately NOT a proportional split of the total distance:

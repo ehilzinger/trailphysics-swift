@@ -9,8 +9,8 @@ import Foundation
 /// The raw values are a persistence format — stored in preferences, saved
 /// routes, a database and a ride snapshot — so they must not be renamed. Any
 /// translation to a routing engine's own profile ids belongs at the wire.
-/// Display names and glyphs are the app's business and live beside its
-/// string catalogue, not here.
+/// Display names and glyphs are the host app's business and belong beside
+/// its string catalogue, not here.
 public enum RouteProfile: String, Codable, CaseIterable, Identifiable, Sendable {
     case bike, gravel, road, roadfast, hiking, trailrun, roadrun
 

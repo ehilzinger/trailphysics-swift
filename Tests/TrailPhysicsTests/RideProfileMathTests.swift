@@ -4,7 +4,7 @@ import Testing
 
 @testable import TrailPhysics
 
-/// Reading `WatchRidePlan.elevations` for "how much is left to climb" —
+/// Reading a stored elevation profile for "how much is left to climb" —
 /// checked against `RouteElevation.ascent`'s own arithmetic over the same
 /// indices, since this is deliberately not a second copy of it.
 struct RideProfileMathTests {

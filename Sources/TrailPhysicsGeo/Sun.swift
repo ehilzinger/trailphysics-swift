@@ -104,8 +104,8 @@ public enum Sun {
     }
 
     /// Where on the horizon the sun sets, in degrees clockwise from north —
-    /// west of 270 in summer, south of it in winter. For Home's horizon,
-    /// which puts the sun where the rider will see it go; a degree or two
+    /// west of 270 in summer, south of it in winter. For a drawn horizon
+    /// that puts the sun where the rider will see it go; a degree or two
     /// out (the declination is the one-line approximation, refraction is
     /// left out) is far below what that drawing can show. Nil where the sun
     /// does not set that day.
@@ -128,8 +128,8 @@ public enum Sun {
     /// Where the sun stands at `date` seen from a point: its azimuth in
     /// degrees clockwise from north and its altitude above the horizon
     /// (negative below it). The NOAA solar-position equations at the
-    /// instant's own fractional year and true solar time — the web's
-    /// `sunPosition` (sun.js), line for line. No refraction: a sketch of the
+    /// instant's own fractional year and true solar time — Hatchure's web
+    /// implementation, line for line. No refraction: a sketch of the
     /// day's arc wants the geometry, not the last half degree at the
     /// horizon. Nil for an unusable input.
     public static func position(at date: Date, lat: Double, lng: Double) -> (azimuth: Double, altitude: Double)? {

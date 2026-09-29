@@ -10,8 +10,8 @@ import Foundation
 /// Nothing here reads `RouteElevation` — that is the STORED profile, thinned
 /// to about 48 points and known before a wheel turns. This is the opposite
 /// measurement: what the barometer actually reported while riding, which is
-/// the only figure the summary and the day's own log can stand behind on a
-/// free ride, where there is no route to have a profile at all.
+/// the only figure a ride's summary and log can stand behind on a free
+/// ride, where there is no route to have a profile at all.
 public struct RideAscent {
     /// A fix looser than this does not move the climb. `verticalAccuracy` is
     /// negative when the device has no altitude opinion at all, and CoreLocation

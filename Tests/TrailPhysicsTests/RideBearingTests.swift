@@ -4,9 +4,9 @@ import Testing
 
 @testable import TrailPhysics
 
-/// Which way, and the honest substitute for a turn instruction this app does
-/// not have: there is no router on watchOS, so the only source of direction
-/// is the shape of the line already on the wrist.
+/// Which way, and the honest substitute for a turn instruction a watch
+/// without a router cannot give: the only source of direction there is the
+/// shape of the line already on the wrist.
 struct RideBearingTests {
     private let baseLat = 48.0
     private var metresPerDegreeLon: Double { 111_320 * cos(baseLat * .pi / 180) }

@@ -2,8 +2,8 @@ import CoreLocation
 import Foundation
 
 /// Which way, in words a rider can act on without reading a compass — and
-/// the nearest thing to a turn instruction this app can honestly give on
-/// watchOS, where there is no router and the plan carries no manoeuvres.
+/// the nearest thing to a turn instruction a watch can honestly give when
+/// it has no router of its own and the plan it carries has no manoeuvres.
 ///
 /// `RouteGeometry` already carries the bearing arithmetic this needs:
 /// `bearing(from:to:)` for the true bearing between two points, and
@@ -61,8 +61,8 @@ public enum RideBearing {
     }
 
     /// A stub of a segment below this length is decimation noise, not a
-    /// direction. `WatchRidePlan.lineToleranceM` (10 m) is what a route's
-    /// line is thinned to before it crosses to the wrist, and Douglas-Peucker
+    /// direction. A route's line is thinned to a 10 m tolerance before it
+    /// crosses to the wrist, and Douglas-Peucker
     /// can still leave a short chord right where two long, nearly-straight
     /// runs meet — its bearing describes that chord, not the road.
     private static let minSegmentM: Double = 3
@@ -76,8 +76,8 @@ public enum RideBearing {
     /// The next bend on the line worth calling out, walking forward from
     /// `fromMetres`.
     ///
-    /// **What this is not.** There is no router on watchOS and
-    /// `WatchRidePlan` carries no manoeuvres, so the only source of
+    /// **What this is not.** There is no router on the wrist and the
+    /// watch's ride plan carries no manoeuvres, so the only source of
     /// direction is the shape of the line the wrist already holds. This
     /// cannot name a road, and it cannot tell a real junction from a bend
     /// the road simply takes — a sweeping motorway-style curve reads exactly

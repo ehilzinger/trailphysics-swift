@@ -1,7 +1,8 @@
 import CoreLocation
 import Foundation
 
-/// Geometry over a route line. The port of the measurement half of `gpx.js`.
+/// Geometry over a route line. The port of the measurement half of
+/// Hatchure's web implementation.
 ///
 /// Everything here is distance-based rather than index-based, and that is
 /// load-bearing rather than stylistic: BRouter emits vertices densely through
@@ -13,8 +14,8 @@ public enum RouteGeometry {
     /// not per route.
     ///
     /// A planned route comes back from BRouter with thousands of vertices, and
-    /// corridor search does not need metre-precision geometry. Only
-    /// `stopsNearRoute` reads the simplified line; everything the rider sees or
+    /// corridor search does not need metre-precision geometry. Only the
+    /// corridor query reads the simplified line; everything the rider sees or
     /// exports — the map line, the saved route, the GPX, the distance — reads
     /// the full one.
     ///
@@ -29,19 +30,19 @@ public enum RouteGeometry {
     public static let maxRoutePoints = 300
 
     /// Earth's mean radius in metres — Leaflet's `L.CRS.Earth.R`, so a
-    /// distance measured here matches what the web app shows for the same
-    /// route.
+    /// distance measured here matches what a Leaflet map (and so Hatchure's
+    /// web implementation) shows for the same route.
     private static let earthRadiusM = 6_371_000.0
 
-    /// Metres between two coordinates, on the same spherical measure the web
-    /// app uses via Leaflet's `L.CRS.Earth` — a haversine on doubles.
+    /// Metres between two coordinates, on the same spherical measure
+    /// Leaflet's `L.CRS.Earth` uses — a haversine on doubles.
     ///
     /// Not `CLLocation.distance(from:)`. That allocates two `CLLocation`
     /// objects and runs a geodesic per call, and this function is the inner
     /// loop of every length, slice, cumulative-distance and corridor
     /// deviation over routes of thousands of vertices — several of which ran
     /// per SwiftUI render. The pure form is ~20× cheaper, allocates nothing,
-    /// and is actually the closer match to the web app's figures, which are
+    /// and is actually the closer match to Leaflet's figures, which are
     /// spherical too.
     public static func distance(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> Double {
         let lat1 = a.latitude * .pi / 180
@@ -58,12 +59,12 @@ public enum RouteGeometry {
     /// circle between them.
     ///
     /// Spherical rather than a linear blend of the two coordinates, because
-    /// the one caller — `Router`'s split coarse pass — uses it over hundreds
-    /// of kilometres, where the linear midpoint sits tens of kilometres off
-    /// the shortest path and would seed the corridor with a detour nobody
-    /// asked for. Falls back to the linear blend for a pair too close
-    /// together for the spherical form to be stable, where the two answers
-    /// agree to well under a metre anyway.
+    /// the one caller — a router's coarse pass over a split route — uses it
+    /// over hundreds of kilometres, where the linear midpoint sits tens of
+    /// kilometres off the shortest path and would seed the corridor with a
+    /// detour nobody asked for. Falls back to the linear blend for a pair
+    /// too close together for the spherical form to be stable, where the
+    /// two answers agree to well under a metre anyway.
     public static func interpolate(
         _ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D, fraction: Double
     ) -> CLLocationCoordinate2D {
@@ -91,13 +92,13 @@ public enum RouteGeometry {
 
     /// The straight great-circle line through `points`, sampled about every
     /// `stepM` metres — the shape a route has when there is no connection
-    /// to ask the router for roads (`RoutePlanModel.drawStraightLegs`).
+    /// to ask the router for roads.
     ///
     /// Sampled rather than left as one segment per pair, for two reasons:
     /// a two-point leg spanning a few hundred kilometres draws as a
     /// straight line on screen where the great circle it stands for bows
-    /// noticeably, and every reader of a route here — the day splitter, the
-    /// elevation scrub, the ride's progress — measures along the vertices
+    /// noticeably, and every reader of a route — a day splitter, an
+    /// elevation scrub, a ride's progress — measures along the vertices
     /// it is given. `maxPoints` keeps a continental hop from producing tens
     /// of thousands of them.
     public static func straightLine(
@@ -138,9 +139,6 @@ public enum RouteGeometry {
         return cumulative
     }
 
-    /// The point `metres` along the line, interpolated between the vertices it
-    /// falls between. Linear interpolation in lat/lng is accurate at the scale
-    /// of a single route segment, which is all this ever spans.
     // MARK: - Thinning
 
     /// Douglas-Peucker: the same line with the vertices that say nothing
@@ -150,17 +148,18 @@ public enum RouteGeometry {
     /// BRouter emits a vertex wherever the underlying way has one, which
     /// on a straight of rural road is a dozen points that a ruler would
     /// have drawn with two. That is the right thing to route on and the
-    /// wrong thing to KEEP: a stored recommendation is about 2,000
-    /// vertices and 33 KB, and the cache holds one per loop per bucket
-    /// per cell for a whole country.
+    /// wrong thing to KEEP: a stored loop is about 2,000 vertices and
+    /// 33 KB, and a precomputed cache holding one per loop per bucket per
+    /// cell for a whole country multiplies that many times over.
     ///
-    /// Measured over 18 stored loops (36,809 vertices) from the seeded
+    /// Measured over 18 stored loops (36,809 vertices) from a seeded
     /// cache: at 1 m 54 % of the vertices survive, at 2 m 39 %, at 3 m
     /// 32 %, at 5 m 24 %, at 10 m 17 %. What it costs is length, since
     /// every shortcut is a chord: −15 m at 1 m tolerance, −88 m at 3 m,
     /// −375 m at 10 m, on loops of about 70 km. Three metres is where
     /// this is used — a third of the storage for 0.13 % of the distance,
     /// and a line that never moves further than a good GPS fix wanders.
+    ///
     /// The points `simplifiedIndices` keeps. A caller with a parallel
     /// array (elevations) must thin by the indices instead, or the two
     /// stop lining up.
@@ -174,12 +173,12 @@ public enum RouteGeometry {
 
     /// Initial great-circle bearing, degrees clockwise from north.
     ///
-    /// Here rather than beside the ride-day code that first needed it
-    /// (`RideStops`, which still forwards to this): the recommendation
-    /// engine reads bearings to place a loop's stops around its start,
-    /// and `RideStops` reaches for the map's stop repository, which is a
-    /// dependency the engine cannot take — `tools/seeder` links these
-    /// files outside the app. Geometry belongs with geometry.
+    /// Here rather than beside the ride-day stop code that first needed
+    /// it: a loop-recommendation engine reads bearings to place a loop's
+    /// stops around its start, and that stop code reaches for a map's stop
+    /// repository, which is a dependency the engine cannot take — it runs
+    /// as a command-line seeder, with no map at all. Geometry belongs with
+    /// geometry.
     public static func bearing(
         from: CLLocationCoordinate2D, to: CLLocationCoordinate2D
     ) -> Double {
@@ -197,6 +196,9 @@ public enum RouteGeometry {
         return raw > 180 ? 360 - raw : raw
     }
 
+    /// The point `metres` along the line, interpolated between the vertices it
+    /// falls between. Linear interpolation in lat/lng is accurate at the scale
+    /// of a single route segment, which is all this ever spans.
     public static func point(
         on line: [CLLocationCoordinate2D],
         cumulative: [Double],
@@ -242,7 +244,7 @@ public enum RouteGeometry {
 
     /// How far along the line a coordinate sits, 0..1, by projecting it onto
     /// the nearest SEGMENT — not the nearest vertex. The distinction matters
-    /// for the same reason the map's screen-space hit-test measures to
+    /// for the same reason a map's screen-space hit-test measures to
     /// segments: BRouter emits no vertices at all along a straight, so the
     /// nearest-vertex answer in the middle of a long straight snaps to
     /// whichever end happens to be closer — sometimes kilometres from where
@@ -266,12 +268,12 @@ public enum RouteGeometry {
     /// The walk below finds the nearest point on the line by keeping the
     /// smallest squared distance it has seen — so "how far along" and "how
     /// far off" fall out of one pass. Asking for them separately meant two
-    /// passes over the same thousands of vertices, and the second one
-    /// (`RouteCorridor.distanceToSegment`, a haversine with four trig calls
-    /// and a `sqrt` per segment) measured **8.8×** the cost of this one on
-    /// an 8 000-vertex line — for a number this pass was already holding.
+    /// passes over the same thousands of vertices, and the second one (a
+    /// haversine point-to-segment distance, with four trig calls and a
+    /// `sqrt` per segment) measured **8.8×** the cost of this one on an
+    /// 8 000-vertex line — for a number this pass was already holding.
     /// That ran per GPS fix for the whole length of a ride, screen off, on
-    /// battery. See docs/performance-audit-2026-09-03.md, RIDE-1.
+    /// battery.
     ///
     /// `distanceM` is the planar length of the winning offset scaled back
     /// out of the local frame — the same equirectangular approximation the
@@ -339,7 +341,7 @@ public enum RouteGeometry {
     ///     start rather than leaving it empty.
     ///   - maxTravelM: how far they could plausibly have moved since. The
     ///     caller owns this because it is a question about riding, not
-    ///     about geometry: `RideSession` computes it from the gap between
+    ///     about geometry: a ride session computes it from the gap between
     ///     fixes and the profile's speed ceiling, so a long gap widens the
     ///     window until it is effectively the whole line again.
     public static func project(
@@ -431,7 +433,7 @@ public enum RouteGeometry {
     }
 
     /// The portion of a route between two 0..1 fractions — one day of a
-    /// multi-day trip (Phase 5), or one leg for export.
+    /// multi-day trip, or one leg for export.
     ///
     /// Both ends are interpolated onto the line rather than snapped to the
     /// nearest vertex, so day 2 starts exactly where day 1 ended and the two
@@ -507,7 +509,7 @@ public enum RouteGeometry {
     /// the server's buffer cost is superlinear in the length of the line it is
     /// given, and a long enough line hits the statement timeout — so the
     /// ceiling is set to keep the chunks short rather than to keep the request
-    /// count down. See `RouteRepository.maxCorridorChunks`.
+    /// count down.
     public static func chunks(
         _ line: [CLLocationCoordinate2D], targetKm: Double, maxChunks: Int
     ) -> [Chunk] {
@@ -594,19 +596,15 @@ public enum RouteGeometry {
         return keep.indices.filter { keep[$0] }
     }
 
-    // MARK: - WKT
-
-    /// `LINESTRING(lng lat, …)` — **longitude first**, as PostGIS expects.
     // MARK: - Waypoint slots
 
     /// Which waypoint slot a grab at `fraction` along the line falls into.
     ///
-    /// Here rather than on `RoutePlanModel`, where it was written and where
-    /// `insertIndex(for:)` still forwards to it from: the drag preview in
-    /// `MapContainerView` needs it, and that view compiles into the App Clip
-    /// (`genproj.py`'s `SHARED_WITH_CLIP`) where the plan model does not
-    /// exist. Pure arithmetic over a fraction and a count, so this is where
-    /// it belonged anyway.
+    /// Here rather than on the route-planning model where it was written:
+    /// a map view's drag preview needs it too, and that view also compiles
+    /// into an App Clip, where the planning model does not exist. Pure
+    /// arithmetic over a fraction and a count, so this is where it belonged
+    /// anyway.
     ///
     /// The measured form: `waypointFractions` is where each waypoint
     /// actually sits on the line, so the preview joins the same pair the
@@ -630,6 +628,9 @@ public enum RouteGeometry {
         return min(max(slot, 1), waypointCount - 1)
     }
 
+    // MARK: - WKT
+
+    /// `LINESTRING(lng lat, …)` — **longitude first**, as PostGIS expects.
     public static func toWKT(_ line: [CLLocationCoordinate2D]) -> String {
         let points = line.map { "\($0.longitude) \($0.latitude)" }.joined(separator: ",")
         return "LINESTRING(\(points))"
@@ -651,7 +652,7 @@ public enum RouteGeometry {
 
     /// Standard ray-casting point-in-polygon test — used client-side to
     /// filter a bbox-fetched batch of stops down to the ones actually
-    /// inside a rider-drawn polygon (`RegionCache.download(polygon:...)`).
+    /// inside a rider-drawn polygon, for an offline download.
     /// The exact server-side check (`ST_Contains`) is what decides the
     /// live "N stops inside" count while drawing; this only needs to agree
     /// with it closely enough that a downloaded region matches what the
@@ -673,7 +674,8 @@ public enum RouteGeometry {
     }
 
     public static func fromWKT(_ wkt: String) -> [CLLocationCoordinate2D] {
-        // Tolerates an SRID prefix, which is how `routes.path` comes back.
+        // Tolerates an SRID prefix, which is how PostGIS hands back a
+        // geometry column as EWKT.
         var text = wkt
         if let semicolon = text.firstIndex(of: ";"), text.hasPrefix("SRID=") {
             text = String(text[text.index(after: semicolon)...])

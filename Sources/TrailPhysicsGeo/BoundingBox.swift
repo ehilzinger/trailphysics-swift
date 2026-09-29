@@ -3,10 +3,10 @@ import CoreLocation
 
 /// A lat/lng rectangle, plus the zoom conversion MapKit doesn't give us.
 ///
-/// The web app reads `map.getZoom()` directly because Leaflet works in integer
-/// Web Mercator zoom levels. MapKit works in coordinate *spans*, so the
-/// threshold that decides between individual stops and server aggregates has
-/// to be derived. Getting this wrong is not cosmetic — it either floods the
+/// A Leaflet map reads `map.getZoom()` directly because Leaflet works in
+/// integer Web Mercator zoom levels. MapKit works in coordinate *spans*, so
+/// the threshold that decides between individual stops and server aggregates
+/// has to be derived. Getting this wrong is not cosmetic — it either floods the
 /// client with rows past the 1000 cap (showing a disc of stops with empty
 /// corners) or renders count bubbles when real markers would fit.
 public struct BoundingBox: Sendable, Hashable, Codable {
@@ -23,9 +23,9 @@ public struct BoundingBox: Sendable, Hashable, Codable {
     }
 
     /// A square box circumscribing a circle of `radiusMeters` around `center`.
-    /// Used to turn "warm a circle around the rider" into the rectangle the
-    /// cache and the bbox RPCs actually key on — the corners hold a little
-    /// more than the circle asked for, which only means the prefetch below
+    /// Used to turn "warm a circle around the rider" into the rectangle a
+    /// cache and a bounding-box query actually key on — the corners hold a
+    /// little more than the circle asked for, which only means a prefetch
     /// warms slightly more ground than strictly requested, never less.
     public init(center: CLLocationCoordinate2D, radiusMeters: Double) {
         let metersPerDegreeLat = 111_320.0
@@ -43,8 +43,7 @@ public struct BoundingBox: Sendable, Hashable, Codable {
     /// The envelope of a set of points — every one of `coordinates` falls
     /// on or inside the result. `nil` for an empty array, since there is
     /// no box to speak of. Used to turn a rider-drawn polygon into the
-    /// bbox the existing quadrant-paged fetch (`RegionCache.fetchQuadrant`)
-    /// already knows how to page over.
+    /// bbox a quadrant-paged fetch already knows how to page over.
     public init?(coordinates: [CLLocationCoordinate2D]) {
         guard let first = coordinates.first else { return nil }
         var minLat = first.latitude, maxLat = first.latitude
@@ -106,17 +105,17 @@ public struct BoundingBox: Sendable, Hashable, Codable {
     /// coordinate, a seeded region, a test.
     ///
     /// It used to be the only answer, and the comment here argued for that:
-    /// the threshold it feeds is a data decision (which RPC to call), so
-    /// letting it vary by device would mean an iPad and an iPhone disagree
+    /// the threshold it feeds is a data decision (which query to run), so
+    /// letting it vary by device would mean a tablet and a phone disagree
     /// about whether the same map view is clustered.
     ///
-    /// That invariant was the wrong one, and an iPad showed it. Clustering
+    /// That invariant was the wrong one, and a tablet showed it. Clustering
     /// exists so markers do not pile up ON SCREEN, which is a question about
     /// points per degree, not about degrees. Two devices showing the same
     /// longitude span are not showing the same view: the wider screen is
     /// spreading it over more points, so its markers are further apart and
     /// it needs clustering LESS. Holding the width at 390 made the
-    /// comparison come out the other way round — a 1032 pt iPad
+    /// comparison come out the other way round — a 1032 pt tablet
     /// under-reported its zoom by log2(1032/390), about 1.4 levels, so a map
     /// the rider had zoomed well past the threshold was still asking the
     /// server for grid cells and getting a lattice of bubbles back over

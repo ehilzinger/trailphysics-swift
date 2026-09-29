@@ -4,12 +4,10 @@ import Foundation
 /// Whether the rider is still on the planned line, and when that is worth
 /// saying out loud.
 ///
-/// `RideSession` has always measured the distance from the line — it goes
-/// into `offRouteM` on every fix, and from there into the Live Activity's
-/// `ContentState`. Nothing ever read it. The field's own comment said why:
-/// riding mode "deliberately does not treat being off the line as an error
-/// (there is no line to guide back to)". This is that line-to-guide-back-to,
-/// and the rule for when to draw it.
+/// A ride can measure the distance from the line on every fix, and still
+/// have no use for it: being off the line is not worth treating as an error
+/// while there is no line to guide back to. This is that
+/// line-to-guide-back-to, and the rule for when to draw it.
 ///
 /// **The whole problem is that raw distance is unusable.** A fix under trees
 /// jumps a hundred metres; a cycleway runs thirty metres from the road the
@@ -51,8 +49,8 @@ public enum RideOffRoute {
             leavingM: 80, returningM: 40, confirmAfterM: 250
         )
 
-        /// On foot the same times are a quarter of the distance, which is
-        /// the ratio `RideApproach.Thresholds` already uses — and a walker
+        /// On foot the same times are a quarter of the distance, the ratio
+        /// the approach alerts already use — and a walker
         /// genuinely is a few metres from the line where a cyclist is
         /// pinned to a carriageway.
         public static let foot = Thresholds(
@@ -62,8 +60,7 @@ public enum RideOffRoute {
         public static func `for`(profile: RouteProfile) -> Thresholds {
             switch profile {
             case .hiking, .trailrun: return foot
-            // `roadrun` on the wheeled column for the reason
-            // `RideApproach.Thresholds.for` gives: a runner on a road
+            // `roadrun` on the wheeled column because a runner on a road
             // covers ground more like a slow cyclist than like a walker.
             case .road, .roadfast, .bike, .gravel, .roadrun: return wheeled
             }
@@ -73,8 +70,8 @@ public enum RideOffRoute {
     /// Where the rider stands relative to the line.
     ///
     /// `straying` is deliberately a state rather than a detail: it is the
-    /// period during which the app has noticed and has NOT yet said
-    /// anything, and having it named is what keeps "noticed" and
+    /// period during which the departure has been noticed and NOT yet
+    /// announced, and having it named is what keeps "noticed" and
     /// "announced" from collapsing into one threshold.
     public enum Standing: String, Codable, Equatable, Sendable {
         case onRoute
@@ -116,7 +113,8 @@ public enum RideOffRoute {
     ///   - suppressed: the caller's veto, for when being off the line is the
     ///     plan. A stop 400 m off the route is 400 m of riding away from it,
     ///     and announcing a wrong turn to a rider who is deliberately riding
-    ///     to a planned café would be the app failing to read its own plan.
+    ///     to a planned café would be the caller failing to read its own
+    ///     plan.
     ///     Suppression resets rather than pauses: coming back from a stop,
     ///     the confirmation starts again from the line.
     public static func advance(

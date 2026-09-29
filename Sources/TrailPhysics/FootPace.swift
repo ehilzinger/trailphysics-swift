@@ -5,8 +5,8 @@ import Foundation
 /// signposts, and their easy flat running pace. Both optional in effect —
 /// anything unset or unreadable falls back to the defaults.
 ///
-/// Mirrors `settings` in hatchure-web's `foot-pace.js` and the
-/// `foot_profiles` row (`hike_factor`, `run_pace_s_per_km`).
+/// Mirrors `settings` in `foot-pace.js`, Hatchure's web implementation of
+/// the same model.
 public struct FootPaceSettings: Codable, Equatable, Sendable {
     /// SPEED factor against the signposts: hike time is the signposted time
     /// divided by it, so 1.2 walks a 3:00 h sign in 2:30 h and 0.85 is
@@ -29,9 +29,9 @@ public struct FootPaceSettings: Codable, Equatable, Sendable {
         runPaceSecPerKm = try c.decodeIfPresent(Int.self, forKey: .runPaceSecPerKm)
     }
 
-    /// Bounds are the database's (`foot_profiles` checks), wider than the
-    /// 0.7–1.5 the profile screen offers (presets 0.85 / 1.0 / 1.2), so a
-    /// factor learned from finished hikes is never cut short by the picker.
+    /// The accepted range, deliberately wider than a settings picker needs
+    /// to offer (0.7–1.5, presets 0.85 / 1.0 / 1.2), so a factor learned
+    /// from finished hikes is never cut short by the picker.
     /// Out of range is clamped, not rejected: 2.4 still clearly means "much
     /// faster than the signs".
     public static let hikeFactorRange: ClosedRange<Double> = 0.5...2.0
@@ -58,20 +58,20 @@ public struct FootPaceSettings: Codable, Equatable, Sendable {
 /// clubs' signpost formula), running by a grade-adjusted pace from Minetti's
 /// energy cost of running.
 ///
-/// The spec is `docs/foot-pace-model.md` in hatchure-web, and
-/// `HatchureTests/Fixtures/foot-pace.json` — a byte-identical copy of the
-/// web's fixture file — pins every number it promises. This is a port of
-/// `app/js/foot-pace.js`; when the two disagree, the spec decides and both
-/// change with the fixtures.
+/// The test fixture `Fixtures/foot-pace.json` — a byte-identical copy of
+/// the file Hatchure's web implementation tests against — pins every
+/// number the model promises. This is a port of that web implementation
+/// (`foot-pace.js`); a change to the model changes both, and the
+/// fixtures with them.
 ///
-/// Pure arithmetic over plain numbers, like `RiderPhysics`, and compiled
-/// wherever `RouteETA` is (the widgets, the clip and the watch too), so it
+/// Pure arithmetic over plain numbers, like `RiderPhysics`, and meant to
+/// run anywhere a route is timed, a watch as much as a phone, so it
 /// reaches for nothing outside Foundation and CoreLocation.
 public enum FootPace {
     /// One stretch of uniform character. Numbers are metres; a negative or
-    /// non-finite one reads as 0. `sacScale` is 0–6 as the Route API sends
+    /// non-finite one reads as 0. `sacScale` is 0–6 as the router reports
     /// it (0 = no tag, nil = unknown; both walking ground); `surface` is an
-    /// OSM `surface=` value, `roadClass` the Route API's `road_class`.
+    /// OSM `surface=` value, `roadClass` the router's road class for the way.
     public struct Section: Equatable, Sendable {
         public var distanceM: Double
         public var ascentM: Double
@@ -94,8 +94,8 @@ public enum FootPace {
     }
 
     /// A way the router placed along the line, metres from the start: what
-    /// is underfoot between `fromM` and `toM`. See `FootPace+Route.swift`
-    /// for the mapping from `RouteComposition.PlacedSegment`.
+    /// is underfoot between `fromM` and `toM`, mapped by the caller from
+    /// the router's per-way surface data.
     public struct Way: Equatable, Sendable {
         public var fromM: Double
         public var toM: Double
@@ -133,12 +133,12 @@ public enum FootPace {
 
     // MARK: - Defaults
 
-    /// Moving time per day. What `RouteDays` splits a multi-day foot route by.
+    /// Moving time per day: what a multi-day foot route is split into days by.
     public static let hikeDayHours: Double = 6
     public static let runDayHours: Double = 3
 
     /// The day length for `profile`, or nil for a riding profile (whose days
-    /// are `RouteDays`' own business).
+    /// are the caller's own business).
     public static func defaultDayHours(for profile: RouteProfile) -> Double? {
         switch profile {
         case .hiking: return hikeDayHours
@@ -189,7 +189,7 @@ public enum FootPace {
 
     /// Minetti et al. (2002), J Appl Physiol 93:1039: energy cost of running,
     /// J/kg/m, against gradient (rise over run), measured over ±45 %.
-    /// Horner form, the same operation order as `foot-pace.js`.
+    /// Horner form, the same operation order as the web implementation.
     public static func minettiCost(_ i: Double) -> Double {
         ((((155.4 * i - 30.4) * i - 43.3) * i + 46.3) * i + 19.5) * i + 3.6
     }
@@ -224,7 +224,7 @@ public enum FootPace {
     }
 
     private static let trailRoadClasses: Set<String> = ["path", "track", "bridleway", "steps"]
-    /// `RouteComposition`'s `ground` surfaces: natural, unpaved ground.
+    /// The surfaces that count as natural, unpaved ground.
     private static let trailSurfaces: Set<String> = [
         "ground", "dirt", "earth", "grass", "grass_paver", "mud",
         "sand", "unpaved", "woodchips", "snow", "ice"
@@ -245,7 +245,7 @@ public enum FootPace {
     /// same steepness, the distance shared by the metres of each. Past
     /// `powerHikeGrade` the climb is power-hiked: the hike time, capped at
     /// the running time, and floored at the running time at exactly 25 % so
-    /// the time never drops as the grade rises (spec §2.2).
+    /// the time never drops as the grade rises.
     private static func runSeconds(
         _ section: Section, distanceM: Double, ascentM: Double, descentM: Double,
         pace: Double, factor: Double
@@ -316,8 +316,8 @@ public enum FootPace {
 
     // MARK: - Cutting a route into sections
 
-    /// Height noise under this is ignored (a dead band, spec §3 step 3): the
-    /// same 5 m `RouteElevation.minClimbM` and the web's `MIN_CLIMB_M` use.
+    /// Height noise under this is ignored (a dead band): the same 5 m as
+    /// `RouteElevation.minClimbM` and the web implementation's `MIN_CLIMB_M`.
     public static let elevationDeadBandM: Double = 5
 
     /// Minimum section length between samples: `RiderPhysics.gradientWindowM`.
@@ -362,7 +362,7 @@ public enum FootPace {
         }
     }
 
-    /// A profile and its ways cut into sections (spec §3).
+    /// A profile and its ways cut into sections.
     ///
     /// `distancesM[i]` is how far along sample i sits, `elevations[i]` its
     /// height (nil for none). `totalM` defaults to the last sample. Without
@@ -421,22 +421,6 @@ public enum FootPace {
 
     // MARK: - A whole route
 
-    private static let earthRadiusM = 6_371_000.0
-
-    /// `RouteGeometry.distance`, repeated here because `RouteGeometry` is
-    /// not compiled into every target this file is (the widgets). Same
-    /// formula, so a way's `fromM` from the router lines up with these.
-    private static func distance(_ a: CLLocationCoordinate2D, _ b: CLLocationCoordinate2D) -> Double {
-        let lat1 = a.latitude * .pi / 180
-        let lat2 = b.latitude * .pi / 180
-        let dLat = lat2 - lat1
-        let dLng = (b.longitude - a.longitude) * .pi / 180
-        let sinLat = sin(dLat / 2)
-        let sinLng = sin(dLng / 2)
-        let h = sinLat * sinLat + cos(lat1) * cos(lat2) * sinLng * sinLng
-        return 2 * earthRadiusM * asin(min(1, sqrt(h)))
-    }
-
     /// The route's sections from its geometry. A stored route keeps every
     /// vertex but thins its profile, so each sample maps back to its vertex
     /// by inverting the stride — the same mapping `RiderPhysics` uses.
@@ -447,7 +431,7 @@ public enum FootPace {
         guard latlngs.count >= 2 else { return [] }
         var cum = [0.0]
         cum.reserveCapacity(latlngs.count)
-        for i in 1..<latlngs.count { cum.append(cum[i - 1] + distance(latlngs[i - 1], latlngs[i])) }
+        for i in 1..<latlngs.count { cum.append(cum[i - 1] + RouteGeometry.distance(latlngs[i - 1], latlngs[i])) }
         let total = cum[cum.count - 1]
 
         var samples: [Double]?

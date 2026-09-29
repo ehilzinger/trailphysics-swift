@@ -2,9 +2,9 @@ import Foundation
 
 /// The rolling average behind every speed and every ETA in a ride.
 ///
-/// Lifted out of `RideSession` and `WatchRideSession`, which had grown two
-/// copies of it, because a rider standing still watched the wrist report
-/// **ten thousand kilometres an hour**.
+/// One copy for the phone's ride session and the watch's, which had grown
+/// two, because a rider standing still watched the wrist report **ten
+/// thousand kilometres an hour**.
 ///
 /// **The quantity fed in is a position along the route, not a distance
 /// covered.** On a planned day it is `fraction × routeKm`, and
@@ -16,7 +16,7 @@ import Foundation
 /// of GPS jitter flips the projection between them, and the difference is
 /// read as ground covered.
 ///
-/// `RideApproach.isFixUsable` does not catch this. It bounds how far OFF
+/// Rejecting unusable fixes does not catch this. That bounds how far OFF
 /// the line a fix may be, which is a different question: both candidate
 /// projections are right next to the line, and both are perfectly usable.
 /// What is wrong is the distance BETWEEN them.
@@ -44,7 +44,7 @@ public struct RideSpeedWindow: Equatable, Sendable {
     ///
     /// Generous on purpose. A loaded tourer on an alpine descent reaches
     /// sixty, exceptionally eighty; a ferry crossing — which a route may
-    /// genuinely contain, see `RouteFerries` — does rather less. A hundred
+    /// genuinely contain — does rather less. A hundred
     /// and twenty is out of reach of all of them and still three orders of
     /// magnitude below a projection flip, so this cannot suppress a real
     /// figure while catching every fake one.

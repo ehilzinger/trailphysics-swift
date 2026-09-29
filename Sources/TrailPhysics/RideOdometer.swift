@@ -3,19 +3,15 @@ import Foundation
 
 /// How far the rider actually went, one fix at a time.
 ///
-/// Lifted out of `RideSession` when the watch learned to run its own ride.
-/// It was already pure, `static` and deliberately outside the actor so it
-/// could be tested without one — the only thing that changed is which
-/// targets can see it, because `RideSession` imports UIKit and ActivityKit
+/// Pure, `static` and deliberately outside any ride session or actor, so it
+/// can be tested without one and so it can run on the watch as well as the
+/// phone: a phone's ride session typically imports UIKit and ActivityKit
 /// and cannot cross to watchOS, while this rule must.
 ///
-/// The alternative was a second implementation on the wrist, and the whole
+/// The alternative is a second implementation on the wrist, and the whole
 /// argument for a standalone watch is that it runs the *same* logic: a
 /// phone and a watch disagreeing about how far a rider went, by a few
-/// hundred metres a day, would be the least debuggable bug in the app.
-///
-/// `RideSession.odometerStep` still exists and forwards here, so every
-/// existing call site and `RideOdometerTests` are untouched.
+/// hundred metres a day, would be the least debuggable bug there is.
 public enum RideOdometer {
     /// What a fix did to the odometer.
     public enum Step: Equatable, Sendable {
@@ -33,13 +29,14 @@ public enum RideOdometer {
     public static let staleAfter: TimeInterval = 90
 
     /// Below this, a step is GPS jitter at a café table rather than riding.
-    /// The same judgement `updateMovingTime` makes about a gap, applied to
-    /// a distance, so the two figures cannot disagree about what counted.
+    /// The same judgement a ride's moving-time count makes about a gap,
+    /// applied to a distance, so the two figures cannot disagree about what
+    /// counted.
     public static let minStepM: Double = 5
 
     /// A fix less accurate than this does not move the odometer. Nothing
-    /// rejects the fix itself — it is still a position, and the approach
-    /// model wants it — but a ±150 m fix under a bridge, differenced
+    /// rejects the fix itself — it is still a position, and approach alerts
+    /// want it — but a ±150 m fix under a bridge, differenced
     /// against the last one, is a hundred metres of "riding" the rider did
     /// not do, and a day of those is what puts a summary kilometres over.
     public static let maxAccuracyM: Double = 50
@@ -49,8 +46,8 @@ public enum RideOdometer {
     /// counting it would bank the error and then bank the way back too.
     public static let maxSpeedKmh: Double = 120
 
-    /// Raw distance between consecutive fixes, under the same two rules
-    /// `updateMovingTime` applies — so the distance and the moving time
+    /// Raw distance between consecutive fixes, under the same two rules a
+    /// ride's moving-time count applies — so the distance and the moving time
     /// cannot disagree about what counted as riding — and two more that
     /// keep the figure from drifting upwards over a day.
     ///

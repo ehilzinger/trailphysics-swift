@@ -2,8 +2,9 @@ import CoreLocation
 import Foundation
 
 /// Elevation figures for a route: the steepest sustained incline and a
-/// resampled profile to draw. The arithmetic half of the web app's
-/// route-stats.js, kept pure so the tests can feed it a synthetic climb.
+/// resampled profile to draw. The arithmetic half of `route-stats.js` in
+/// Hatchure's web implementation, kept pure so the tests can feed it a
+/// synthetic climb.
 public enum RouteElevation {
     /// A profile ready to draw: `points` are (distance fraction 0…1, metres).
     public struct Profile: Equatable {
@@ -28,24 +29,25 @@ public enum RouteElevation {
     /// The smallest unbroken rise that counts as a climb, in metres. Below
     /// this a rise is the elevation model's own noise, not terrain.
     ///
-    /// 5 m, and the web's own figure — chosen there by measuring against
-    /// BRouter's filtered ascent on four real routes rather than by picking
-    /// a round number (`route-stats.js` carries the table). Unfiltered
-    /// summation over a full-resolution BRouter profile, which is what this
-    /// app did, banks every one of thousands of sub-metre wobbles: measured
-    /// on a 546 km tour it reported 6280 m against a true 4200. A thinned
+    /// 5 m, and the web implementation's own figure — chosen there by
+    /// measuring against BRouter's filtered ascent on four real routes
+    /// rather than by picking a round number. Unfiltered summation over a
+    /// full-resolution BRouter profile, which is what an earlier version
+    /// did, banks every one of thousands of sub-metre wobbles: measured on
+    /// a 546 km tour it reported 6280 m against a true 4200. A thinned
     /// 240-point profile has the opposite error and under-reports, which is
-    /// what `RoutePlanModel.storedAscentM` exists to avoid.
+    /// why a route's ascent is best measured on the full profile and kept,
+    /// not recomputed from the thinned one.
     public static let minClimbM: Double = 5
 
     /// Total metres climbed over a profile, with rises under `minClimbM`
-    /// discarded as jitter — the web's `ascentFrom`, walked the same way: a
-    /// rise accumulates until the first descent, and is banked only if it
-    /// amounted to a real climb.
+    /// discarded as jitter — the web implementation's `ascentFrom`, walked
+    /// the same way: a rise accumulates until the first descent, and is
+    /// banked only if it amounted to a real climb.
     ///
-    /// The one implementation of this arithmetic. The route total, a day's
-    /// own figure and a recommendation's card each had their own copy, and
-    /// all three summed every positive delta.
+    /// Meant to be the one implementation of this arithmetic. A route's
+    /// total, a single day's figure and a suggested route's summary each
+    /// once had their own copy, and all three summed every positive delta.
     public static func ascent(_ elevations: [Double]?) -> Double? {
         guard let elevations, elevations.count > 1 else { return nil }
         return ascent(elevations, from: 0, through: elevations.count - 1)
@@ -77,28 +79,28 @@ public enum RouteElevation {
     /// the elevation model's own resolution dominate and the number is noise.
     public static let inclineWindowM: Double = 100
 
-    /// What `routes.elevations` holds: at most this many points. The web's
-    /// `profileForStorage` thins to the chart's resolution before writing,
-    /// and the column's `routes_elevations_shape_check` refuses anything
-    /// longer — a full BRouter track (thousands of vertices) is ~30 KB of
-    /// jsonb to reproduce sub-pixel detail, where this is a little over 1 KB.
+    /// The most points a stored profile holds. The profile is thinned to the
+    /// chart's resolution before writing, and anything longer is outside the
+    /// accepted shape — a full BRouter track (thousands of vertices) is
+    /// ~30 KB of JSON to reproduce sub-pixel detail, where this is a little
+    /// over 1 KB.
     public static let maxStoredPoints = 240
 
     /// Thins an elevation array to what the profile chart actually draws and
-    /// rounds to whole metres, for storing alongside a saved route — the
-    /// web's `profileForStorage`, so a route saved here has the same shape
-    /// as one saved on the web and passes the same check constraint.
+    /// rounds to whole metres, for storing alongside a saved route — the web
+    /// implementation's `profileForStorage`, so a profile stored from here
+    /// has the same shape as one stored from the web and fits the same limit.
     ///
     /// Sub-metre precision goes too: BRouter's model is quantised to the
     /// metre anyway, so the decimals were never real. Nil for anything with
-    /// no profile to store, which is what leaves the column null.
+    /// no profile to store, which is what leaves the stored profile empty.
     public static func profileForStorage(_ elevations: [Double]?) -> [Double]? {
         guard let elevations, elevations.count >= 2 else { return nil }
         return sample(elevations, max: maxStoredPoints).map { $0.rounded() }
     }
 
-    /// Every `max`-th-ish value, first and last always kept — the web's
-    /// `sample()`, index for index, because reading a stored profile back
+    /// Every `max`-th-ish value, first and last always kept — the web
+    /// implementation's `sample()`, index for index, because reading a stored profile back
     /// (`anchorDistances`) inverts exactly this stride.
     public static func sample(_ values: [Double], max: Int) -> [Double] {
         guard values.count > max, max >= 2 else { return values }
@@ -236,8 +238,8 @@ public enum RouteElevation {
     ///
     /// A kilometre is where that stops: below it the climbs a "max incline"
     /// is about are still resolved, above it they are averaged away. Past
-    /// this the answer is nil, which every reader of this already handles —
-    /// the panel simply leaves the row out. Nil is the honest answer here,
+    /// this the answer is nil, which every caller has to handle anyway — a
+    /// display simply leaves the row out. Nil is the honest answer here,
     /// and the figure comes back the moment the route is planned again at
     /// full resolution.
     ///
@@ -281,11 +283,11 @@ public enum RouteElevation {
     /// The steepest sustained gradient on the route, in percent, UPHILL.
     ///
     /// Uphill only, which is what `inclineBand` beside this has always
-    /// documented this function as doing and what the "Max incline" figure
-    /// it feeds means to a rider: an incline is what has to be climbed. It
-    /// read `abs(rise)` until 2026-09-23, so on a route that drops off a
-    /// shoulder harder than it climbs anything — the Rhine valley run down
-    /// to Chur is one — the headline gradient was a descent.
+    /// documented this function as doing and what a "Max incline" figure
+    /// means to a rider: an incline is what has to be climbed. It once read
+    /// `abs(rise)`, so on a route that drops off a shoulder harder than it
+    /// climbs anything — the Rhine valley run down to Chur is one — the
+    /// headline gradient was a descent.
     ///
     /// Measured over `despiked` heights: see there for why a minimum window
     /// alone is not enough.
@@ -321,9 +323,9 @@ public enum RouteElevation {
 
     // MARK: - Incline banding
 
-    /// How hard a stretch is to ride, on a fixed four-step scale. The web's
-    /// `INCLINE_BANDS` (route-stats.js), ported so the same GPX bands the
-    /// same way on both platforms.
+    /// How hard a stretch is to ride, on a fixed four-step scale. The web
+    /// implementation's `INCLINE_BANDS` (`route-stats.js`), ported so the
+    /// same GPX bands the same way on both platforms.
     ///
     /// Deliberately free of SwiftUI: the colours live in the view layer, so
     /// this — and the tests that feed it a synthetic climb — stay pure.
@@ -336,8 +338,8 @@ public enum RouteElevation {
     /// not the end of gentle, otherwise a sustained 4 % would read as a drag.
     public static let inclineBandThresholds: [Double] = [4, 8, 12]
     /// On foot the same four steps sit much higher: 12 % is a gentle path,
-    /// and walking only gets hard past 25 % (the web's foot bands,
-    /// route-stats.js).
+    /// and walking only gets hard past 25 % (the web implementation's foot
+    /// bands).
     public static let footInclineBandThresholds: [Double] = [15, 25, 40]
 
     /// Which band a gradient falls in.
@@ -369,12 +371,12 @@ public enum RouteElevation {
     }
 
     /// The profile split into runs of same-band samples, so the chart can be
-    /// filled by steepness — the web's `elevationBandPaths`, minus the SVG.
+    /// filled by steepness — the web implementation's `elevationBandPaths`,
+    /// minus the SVG.
     ///
     /// Each run starts at the previous one's LAST index rather than the next
     /// one: that shared edge point is what keeps adjoining bands seamless.
-    /// Without it the fills show hairlines of background between them, the
-    /// same failure the day-segment boundaries interpolate around.
+    /// Without it the fills show hairlines of background between them.
     ///
     /// Gradient is measured against real distance rather than the index —
     /// `points` are sampled evenly by distance already (see `profile`), so
@@ -473,9 +475,9 @@ public enum RouteElevation {
 
     /// The ceiling, and where it comes from.
     ///
-    /// The chart draws one hachure per 5.5 points of width — 70 strokes on
-    /// the widest phone — and it can be zoomed to `minVisibleFraction`, a
-    /// twentieth, of the route. A window that narrow has to still hold a
+    /// The chart this was sized for draws one hachure per 5.5 points of
+    /// width — 70 strokes on the widest phone — and can be zoomed to a
+    /// twentieth of the route. A window that narrow has to still hold a
     /// sample per stroke, so the whole route needs twenty times the stroke
     /// count: 70 × 20 = 1,400. That is what makes zooming in REVEAL detail
     /// rather than magnify a line already drawn, since the strokes in the
@@ -483,7 +485,7 @@ public enum RouteElevation {
     /// points 5 km apart.
     ///
     /// It costs 1,400 pairs of doubles, rebuilt only when the geometry
-    /// changes (`GeometryCache`), against the 120 it was.
+    /// changes, against the 120 it was.
     public static let profileSampleCeiling = 1_400
 
     /// How many points to resample a route of this length to: about one per

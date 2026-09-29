@@ -33,10 +33,10 @@ struct BoundingBoxTests {
         #expect(munich.approximateZoom() == oslo.approximateZoom())
     }
 
-    /// The bug an iPad found: the same box on a wider map is a HIGHER zoom,
+    /// The bug a tablet found: the same box on a wider map is a HIGHER zoom,
     /// because zoom is about how many points a degree is spread over.
     ///
-    /// Held at a phone's 390 pt, a 1032 pt iPad under-reported by about 1.4
+    /// Held at a phone's 390 pt, a 1032 pt tablet under-reported by about 1.4
     /// levels, so a view the rider had zoomed past the threshold still asked
     /// for the server's cluster grid — and a lattice of bubbles replaced
     /// stops that had drawn correctly a moment before.

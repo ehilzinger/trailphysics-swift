@@ -5,12 +5,13 @@ import Foundation
 /// zoom it is being read at.
 ///
 /// BRouter emits a vertex wherever the underlying way has one. Measured
-/// against the live router on 2026-09-17, a 537 km Munich–Milan answer came
-/// back with 13,835 vertices — 25.8 per kilometre — so a fortnight's tour
-/// is tens of thousands, and the map draws all of them TWICE, since the
-/// casing under the line carries the same geometry. MapKit walks every one
-/// of those points each time it re-rasterises an overlay tile, which is
-/// what a pan is, and that is the lag a long route acquires.
+/// against a live BRouter instance on 2026-09-17, a 537 km Munich–Milan
+/// answer came back with 13,835 vertices — 25.8 per kilometre — so a
+/// fortnight's tour is tens of thousands, and a map that draws a casing
+/// under the line draws all of them TWICE, since the casing carries the
+/// same geometry. MapKit walks every one of those points each time it
+/// re-rasterises an overlay tile, which is what a pan is, and that is the
+/// lag a long route acquires.
 ///
 /// Framed to fit a phone, almost none of those vertices are separate
 /// places. At the zoom that 537 km route fits a ~390 pt screen one screen
@@ -20,7 +21,7 @@ import Foundation
 /// unchanged, because everything taken out was inside a pixel of what is
 /// left.
 ///
-/// Only the DRAWN copy is thinned. `RoutePlanModel.latlngs` stays at full
+/// Only the DRAWN copy is thinned. The route itself stays at full
 /// resolution and everything measured off it — length, ascent, day breaks,
 /// the corridor query, the ride's own projection, what gets saved — still
 /// reads the real geometry.

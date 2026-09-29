@@ -12,7 +12,7 @@ struct RouteGeometryTests {
         CLLocationCoordinate2D(latitude: lat, longitude: lng)
     }
 
-    @Test("Distance is the spherical measure the web app uses")
+    @Test("Distance is the spherical measure Leaflet uses")
     func sphericalDistance() {
         // Munich → Berlin on a 6371 km sphere, as Leaflet measures it.
         let km = RouteGeometry.distance(c(48.1374, 11.5755), c(52.5200, 13.4050)) / 1000

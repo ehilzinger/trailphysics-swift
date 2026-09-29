@@ -228,8 +228,9 @@ struct ProfileResolutionTests {
     /// allows must still leave a sample behind every stroke it draws.
     @Test("A zoomed window still holds a sample per stroke")
     func zoomKeepsDetail() {
-        // The chart's own numbers: one stroke per 5.5 pt of width, and a
-        // floor of a twentieth of the route on the zoom.
+        // The numbers of the chart the ceiling was sized for: one stroke per
+        // 5.5 pt of width, and a floor of a twentieth of the route on the
+        // zoom.
         let strokesOnAPhone = Int((393.0 - 4) / 5.5)
         let samplesInTheNarrowestWindow =
             Double(RouteElevation.profileSampleCeiling) * 0.05
@@ -278,8 +279,9 @@ struct ProfileResolutionTests {
 /// band a gradient lands in, and that the bands together still cover the
 /// whole chart with no gaps.
 ///
-/// Ported case for case from the web's `route-stats.test.js`, so the two
-/// platforms cannot drift on the thresholds or the fallbacks.
+/// Ported case for case from `route-stats.test.js` in Hatchure's web
+/// implementation, so the two cannot drift on the thresholds or the
+/// fallbacks.
 struct InclineBandTests {
     /// `count` evenly spaced samples rising by `riseM` each step.
     private func ramp(_ count: Int, riseM: Double) -> [(x: Double, y: Double)] {

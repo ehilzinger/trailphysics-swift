@@ -34,8 +34,11 @@ state. It needs only Foundation and CoreLocation.
 Platforms: iOS 18, watchOS 11, macOS 14.
 
 ```swift
-.package(url: "https://github.com/<owner>/TrailPhysics", from: "0.1.0")
+.package(url: "https://github.com/ehilzinger/trailphysics-swift", from: "0.1.0")
 ```
+
+then `.product(name: "TrailPhysics", package: "trailphysics-swift")` (or
+`TrailPhysicsGeo` alone) in your target's dependencies.
 
 ## Example
 
@@ -74,7 +77,7 @@ let sunset = Sun.sunset(on: .now, lat: line[0].latitude, lng: line[0].longitude)
 `RouteProfile` names seven ways a route can be drawn (`bike`, `gravel`,
 `road`, `roadfast`, `hiking`, `trailrun`, `roadrun`) in three sports. The pace
 and ride models switch on it. Its raw values are a stored format, so they
-never change. Display names and routing-engine ids are left to the app.
+never change. Display names and routing-engine ids are left to the host app.
 
 ## Tests
 

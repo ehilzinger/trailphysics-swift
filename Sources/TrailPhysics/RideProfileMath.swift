@@ -1,17 +1,17 @@
 import CoreLocation
 import Foundation
 
-/// Reading `WatchRidePlan.elevations` — the whole route's climb, thinned to
-/// about 48 points, the same array `RideAttributes.ContentState.elevations`
-/// carries to the lock screen.
+/// Reading a stored elevation profile — the whole route's climb, thinned to
+/// about 48 points, the kind of array a watch's ride plan carries to the
+/// wrist and a Live Activity's state carries to the lock screen.
 ///
 /// Pure arithmetic over that one array so it can be tested without a plan, a
 /// snapshot or a route — the watch asks it "how much is left to climb
 /// between here and the next stop", nothing more.
 public enum RideProfileMath {
     /// Metres still to climb between two fractions of the WHOLE route —
-    /// `RideSnapshot`'s own axis (`routePosition`, `dayFrom`, `dayTo`), not
-    /// the day's.
+    /// the axis a ride's route position and its day bounds are measured on,
+    /// not the day's.
     ///
     /// - Parameters:
     ///   - line: the route's coordinates, when the caller has them, so the
@@ -42,8 +42,8 @@ public enum RideProfileMath {
         }
 
         // The fallback, and it is one: `anchorDistances` answers nil
-        // whenever the elevations outnumber the vertices, which
-        // `WatchRidePlan`'s own 10 m line decimation makes routine rather
+        // whenever the elevations outnumber the vertices, which thinning
+        // the line to a 10 m tolerance for the wrist makes routine rather
         // than rare — a long route's ~48-point profile can easily end up
         // denser than the thinned line that crossed to the wrist. A
         // proportional split assumes those samples are spread evenly along
@@ -51,7 +51,6 @@ public enum RideProfileMath {
         // not, but the error is at most a few hundred metres of profile on
         // a figure that is already a forecast — "climbing to go" for a stop
         // still a day away — not a live reading measured off the ground.
-        // `RouteDays.ascentM` takes the identical trade for a day header.
         let fromIndex = Int((Double(elevations.count - 1) * start).rounded())
         let toIndex = Int((Double(elevations.count - 1) * end).rounded())
         return RouteElevation.ascent(elevations, from: fromIndex, through: toIndex)
@@ -61,10 +60,10 @@ public enum RideProfileMath {
     /// profile already placed along it — `anchors[i]` is how far along the
     /// route `elevations[i]` was taken (`RouteElevation.anchorDistances`).
     ///
-    /// The phone's live "climb to the next stop" asks this once a fix: the
-    /// anchors are worked out once per day, since walking a long route's
-    /// cumulative distances on every fix is the cost the wrist's comment on
-    /// `WatchRideModel.dayLine` already refuses to pay.
+    /// A live "climb to the next stop" can ask this once a fix: the anchors
+    /// are worked out once per day, since walking a long route's cumulative
+    /// distances on every fix is a cost a watch in particular cannot
+    /// afford.
     ///
     /// - Returns: nil when the two arrays do not describe one profile, or
     ///   `toM` is not past `fromM`; otherwise the summed ascent, 0 when the

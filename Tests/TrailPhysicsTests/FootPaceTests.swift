@@ -4,10 +4,10 @@ import Testing
 @testable import TrailPhysics
 
 /// The shared vectors: `Fixtures/foot-pace.json`, a byte-identical copy of
-/// hatchure-web's `app/js/__tests__/fixtures/foot-pace.json`. Both ports read
-/// every vector, so they cannot drift apart. The spec is
-/// `docs/foot-pace-model.md` in hatchure-web. The `pace` vectors are display
-/// strings, which the app formats; its own tests read them.
+/// the fixture file Hatchure's web implementation tests against. Both ports
+/// read every vector, so they cannot drift apart. The `pace` vectors are
+/// display strings; formatting is left to the caller, so they are decoded
+/// here but not tested.
 enum FootPaceFixtures {
     struct File: Decodable {
         var version: Int
@@ -140,7 +140,7 @@ struct FootPaceSettingsTests {
         #expect(s.runPace(for: .trailrun) == 420)
     }
 
-    @Test("One user pace serves both run profiles, clamped to the database's bounds")
+    @Test("One user pace serves both run profiles, clamped to the accepted bounds")
     func userPace() {
         #expect(FootPaceSettings(runPaceSecPerKm: 330).runPace(for: .roadrun) == 330)
         #expect(FootPaceSettings(runPaceSecPerKm: 330).runPace(for: .trailrun) == 330)

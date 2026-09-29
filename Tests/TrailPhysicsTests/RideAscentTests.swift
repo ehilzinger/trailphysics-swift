@@ -13,7 +13,7 @@ struct RideAscentTests {
         _ metresEast: Double, altitude: Double, at seconds: TimeInterval,
         verticalAccuracy: Double = 5
     ) -> CLLocation {
-        // 48°N, as `RideOdometerTests` uses — a degree of longitude there is
+        // 48°N — a degree of longitude there is
         // about 74.4 km, which keeps the arithmetic in this file in metres.
         let metresPerDegree = 111_320 * cos(48 * Double.pi / 180)
         return CLLocation(
