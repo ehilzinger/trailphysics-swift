@@ -83,7 +83,7 @@ public struct BoundingBox: Sendable, Hashable, Codable {
     }
 
     /// Whether the two boxes share any ground, edges included.
-    func intersects(_ other: BoundingBox) -> Bool {
+    public func intersects(_ other: BoundingBox) -> Bool {
         other.minLat <= maxLat && other.maxLat >= minLat
             && other.minLng <= maxLng && other.maxLng >= minLng
     }
