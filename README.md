@@ -1,6 +1,8 @@
 # TrailPhysics
 
 [![tests](https://github.com/ehilzinger/trailphysics-swift/actions/workflows/tests.yml/badge.svg)](https://github.com/ehilzinger/trailphysics-swift/actions/workflows/tests.yml)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fehilzinger%2Ftrailphysics-swift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/ehilzinger/trailphysics-swift)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fehilzinger%2Ftrailphysics-swift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/ehilzinger/trailphysics-swift)
 
 Route geometry and pace physics for cycling, hiking and running, in Swift.
 It powers the route planning, arrival times and live ride tracking in
