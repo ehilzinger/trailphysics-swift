@@ -28,9 +28,8 @@ public struct RideAscent {
     /// large fraction of the rise, and — on a route with a stored
     /// profile — the vertices themselves are not that close together either.
     /// `RouteElevation.inclineWindowM` makes the identical argument for a
-    /// route's profile at 100 m; this is wider because a live fix is noisier
-    /// than a modelled vertex, and 200 m of riding is still only a few
-    /// seconds.
+    /// route's profile, at the same 200 m; a live fix is noisier than a
+    /// modelled vertex, and 200 m of riding is still only a few seconds.
     public static let gradeWindowM: Double = 200
 
     public init() {}

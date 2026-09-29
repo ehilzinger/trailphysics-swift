@@ -107,8 +107,7 @@ public enum RiderPhysics {
     /// (BRouter's elevation model is quantised, so a short segment reads as
     /// a phantom ramp nobody rode); here the consequence of not smoothing is
     /// worse than a wrong headline number, because every phantom ramp adds
-    /// real minutes to the total. Wider than the 100 m display window for
-    /// exactly that reason.
+    /// real minutes to the total. The same 200 m as the display window.
     public static let gradientWindowM: Double = 200
 
     public static let fatigueExponent: Double = 0.04

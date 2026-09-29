@@ -77,7 +77,13 @@ public enum RouteElevation {
 
     /// The window a gradient is measured over. Under this, vertex spacing and
     /// the elevation model's own resolution dominate and the number is noise.
-    public static let inclineWindowM: Double = 100
+    ///
+    /// 200 m rather than 100: checked against Alpe d'Huez, whose steepest
+    /// ramps are documented at about 13%. A 100 m window reports 18.4% there,
+    /// still reading the model's own noise, where 200 m gives 13.3%. Wider
+    /// windows keep smoothing (500 m puts it under 12%) but start averaging
+    /// away real ramps. The JavaScript port uses the same value.
+    public static let inclineWindowM: Double = 200
 
     /// The most points a stored profile holds. The profile is thinned to the
     /// chart's resolution before writing, and anything longer is outside the
@@ -244,7 +250,7 @@ public enum RouteElevation {
     /// full resolution.
     ///
     /// The full-resolution profile that comes off BRouter is never near
-    /// this: its vertices are metres apart, which is why the 100 m
+    /// this: its vertices are metres apart, which is why the 200 m
     /// `inclineWindowM` exists in the first place.
     public static let maxInclineSpacingM: Double = 1_000
 
@@ -259,7 +265,7 @@ public enum RouteElevation {
     /// it, a node the DEM simply missed — and the median puts it back
     /// between its neighbours.
     ///
-    /// Why the gradient reader needs this at all: `inclineWindowM` is 100 m,
+    /// Why the gradient reader needs this at all: `inclineWindowM` is 200 m,
     /// and the routes that carry the biggest surprises are the ones whose
     /// vertices are tens of metres apart, so a single 50 m outlier landing
     /// on a window's endpoint IS a 50 % "gradient" as far as the arithmetic

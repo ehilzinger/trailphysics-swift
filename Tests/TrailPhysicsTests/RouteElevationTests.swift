@@ -11,6 +11,26 @@ struct RouteElevationTests {
         (0..<count).map { CLLocationCoordinate2D(latitude: 48.0 + Double($0) * 0.00045, longitude: 11.0) }
     }
 
+    /// The window is calibrated against a real road climb rather than picked
+    /// round: Alpe d'Huez's steepest ramps are documented at about 13%, which
+    /// a 100 m window overstates as 18% by still reading the elevation
+    /// model's own noise. Ported from the JavaScript port's test of the same
+    /// name, so the two cannot move the constant apart again.
+    @Test("Max incline is measured over a 200 m window")
+    func measuresOverTwoHundredMetres() throws {
+        // 300 m of line, one vertex every 10 m, rising 30 m in its first
+        // 100 m only. A 100 m window would report that as 30%; a 200 m one
+        // spreads the same 30 m over 200 m.
+        let metresPerDegree = 6_371_000 * Double.pi / 180
+        let latlngs = (0..<31).map {
+            CLLocationCoordinate2D(latitude: 48 + Double($0) * 10 / metresPerDegree, longitude: 11)
+        }
+        let elevations = (0..<31).map { 100 + Double(min($0, 10)) * 3 }
+        let pct = try #require(RouteElevation.maxInclinePct(latlngs: latlngs, elevations: elevations))
+        #expect(RouteElevation.inclineWindowM == 200)
+        #expect(abs(pct - 15) < 0.5)
+    }
+
     @Test("A steady 10 % climb reads as 10 %, a lone spike does not")
     func incline() {
         let latlngs = line(21) // ~1 km
