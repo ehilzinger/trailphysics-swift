@@ -50,7 +50,7 @@ than 85% of the flat pace.
 | Product | What it holds |
 | --- | --- |
 | `TrailPhysicsGeo` | `RouteGeometry`, `BoundingBox`, `RouteLineDecimation`, `Sun` |
-| `TrailPhysics` | `RiderPhysics`, `FootPace`, `RouteElevation`, `RouteProfile`, `RideSpeedWindow`, `RideOffRoute`, `RideAscent`, `RideOdometer`, `RideProfileMath`, `RideBearing`. Re-exports `TrailPhysicsGeo`. |
+| `TrailPhysics` | `RiderPhysics`, `FootPace`, `RouteElevation`, `RouteProfile`, `RideSpeedWindow`, `RideOffRoute`, `RideAscent`, `RideOdometer`, `RideProfileMath`, `RideBearing`, and turn-by-turn cues: `RouteCue`, `CuePlan` (which turns to say, merged, with the way ahead and heads-ups), `CueTracker` (when to say each). Re-exports `TrailPhysicsGeo`. |
 
 Platforms: iOS 18, watchOS 11, macOS 14.
 
@@ -111,9 +111,9 @@ swift test
 There is a JavaScript port of the same models,
 [trailphysics on npm](https://github.com/ehilzinger/trailphysics-js). The
 test vectors in `Tests/TrailPhysicsTests/Fixtures/` (foot pace, rider
-physics, elevation) are byte-identical copies of the files that port
+physics, elevation, cues) are byte-identical copies of the files that port
 writes, and both test suites read every vector, so the two agree to within
-a millionth on every figure they share.
+a millionth on every figure they share, and exactly on every cue.
 
 ## Licence
 

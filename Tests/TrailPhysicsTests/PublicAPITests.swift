@@ -44,4 +44,16 @@ struct PublicAPITests {
         #expect(RideBearing.direction(relative: 45) == .right)
         #expect(RouteProfile.trailrun.sport == .run)
     }
+
+    @Test("Cues can be read, planned and tracked from outside the module")
+    func cues() throws {
+        let list = try JSONDecoder().decode(RouteCue.List.self, from: Data(#"[{"point": 2, "maneuver": "left"}, {"point": 4, "maneuver": "arrive"}]"#.utf8))
+        let ways = [CueWay(fromPoint: 0, toPoint: 4, roadClass: "path", sacScale: 1, trailVisibility: nil)]
+        let sport = CueSport.for(profile: .hiking)
+        let plan = CuePlan.build(cues: list.cues, ways: ways, cumulative: [0, 50, 100, 150, 200], elevations: nil, sport: sport)
+        #expect(plan.map(\.kind) == [.turn, .arrive])
+        #expect(plan[0].onto == .path)
+        let step = CueTracker.advance(.start, alongM: 95, speedMps: 1.2, plan: plan, sport: sport)
+        #expect(step.event?.moment == .now && step.event?.index == 0)
+    }
 }
