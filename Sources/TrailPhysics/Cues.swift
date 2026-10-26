@@ -224,6 +224,9 @@ public enum CueNotice: String, Codable, CaseIterable, Sendable {
 public struct CueStep: Codable, Equatable, Sendable {
     public var maneuver: RouteCue.Maneuver
     public var turnDeg: Double?
+    /// The other ways leaving the junction, as `turnDeg`, to draw it; nil
+    /// when the router cannot tell.
+    public var otherWaysDeg: [Double]?
     public var exit: Int?
     public var name: String?
     public var ref: String?
@@ -246,6 +249,8 @@ public struct PlannedCue: Codable, Equatable, Sendable {
     /// nil on a heads-up.
     public var maneuver: RouteCue.Maneuver?
     public var turnDeg: Double?
+    /// The other ways leaving the junction, to draw it.
+    public var otherWaysDeg: [Double]?
     public var exit: Int?
     public var name: String?
     public var ref: String?
@@ -333,7 +338,8 @@ public enum CuePlan {
             } else {
                 let kind: PlannedCue.Kind = c.maneuver == .arrive ? .arrive : c.maneuver == .waypoint ? .waypoint : .turn
                 out.append(PlannedCue(
-                    kind: kind, alongM: along, point: c.point, maneuver: s.maneuver, turnDeg: s.turnDeg, exit: s.exit,
+                    kind: kind, alongM: along, point: c.point, maneuver: s.maneuver, turnDeg: s.turnDeg,
+                    otherWaysDeg: s.otherWaysDeg, exit: s.exit,
                     name: s.name, ref: s.ref, onto: s.onto, slope: s.slope, then: [], notice: nil, sacScale: nil
                 ))
             }
@@ -349,7 +355,8 @@ public enum CuePlan {
                 continue
             }
             out.append(PlannedCue(
-                kind: .headsUp, alongM: nAlong, point: n.point, maneuver: nil, turnDeg: nil, exit: nil, name: nil, ref: nil,
+                kind: .headsUp, alongM: nAlong, point: n.point, maneuver: nil, turnDeg: nil, otherWaysDeg: nil,
+                exit: nil, name: nil, ref: nil,
                 onto: onto(ways, from: n.point, cumulative: cumulative),
                 slope: slope(from: n.point, cumulative: cumulative, elevations: elevations),
                 then: [], notice: n.notice, sacScale: n.notice == .harderGrade ? n.sacScale : nil
@@ -450,7 +457,8 @@ public enum CuePlan {
 
     static func step(_ cue: RouteCue, ways: [CueWay], cumulative: [Double], elevations: [Double?]?) -> CueStep {
         CueStep(
-            maneuver: cue.maneuver, turnDeg: cue.turnDeg, exit: cue.exit, name: cue.name, ref: cue.ref,
+            maneuver: cue.maneuver, turnDeg: cue.turnDeg, otherWaysDeg: cue.otherWaysDeg,
+            exit: cue.exit, name: cue.name, ref: cue.ref,
             onto: onto(ways, from: cue.point, cumulative: cumulative),
             slope: slope(from: cue.point, cumulative: cumulative, elevations: elevations), gapM: nil
         )
